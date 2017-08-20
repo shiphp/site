@@ -3,13 +3,17 @@ layout: default
 title: Home
 ---
 
+<div class="home-signup">
 {% include ebook-form-1.html %}
+</div>
+
+<h1>Latest Blog Posts</h1>
 
 {% for post in paginator.posts %}
 <div class="posts">
-  <h1>
+  <h2>
     <a href="{{ site.github.url }}{{ post.url }}">{{ post.title }}</a>
-  </h1>
+  </h2>
   {% if post.image.teaser %}
     <a href="{{ site.github.url }}{{ post.url }}"><img src="{{ site.github.url }}/assets/img/{{ post.image.teaser }}"></a>
   {% endif %}

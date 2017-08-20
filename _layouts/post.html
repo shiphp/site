@@ -6,12 +6,6 @@ layout: default
   {{ page.title }}
 </h1>
 
-{% if page.image.feature %}
-  <img src="{{ site.github.url }}/assets/img/{{ page.image.feature }}">
-{% endif %}
-
-{{ content }}
-
 <span class="post-date">
   Written on
   {% assign d = page.date | date: "%-d"  %}
@@ -30,9 +24,13 @@ layout: default
   {% endif %}
 </span>
 
-{% include social-sharing.html %}
+{% if page.image.feature %}
+  <img src="{{ site.github.url }}/assets/img/{{ page.image.feature }}">
+{% endif %}
 
-{% include related-posts.html %}
+{{ content }}
+
+{% include ebook-form-1.html %}
 
 {% if site.data.settings.disqus.comments %}
   {% include disqus.html %}

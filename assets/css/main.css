@@ -23,7 +23,7 @@ h1{
   font-size: 2rem;
 }
 
-h1 a {
+h1 a, h2 a {
   text-decoration: none;
 }
 
@@ -427,21 +427,14 @@ pre {
 	color: black;
 }
 
+.home-signup {
+    margin: -30px 0 30px;
+}
 #mc_embed_signup {
     font-family: "Quattrocento Sans", sans-serif;
-    background: #df7523;
+    background: #dad8d7;
     padding: 20px;
-    color: #fff;
     border-radius: 5px;
-}
-
-#mc_embed_signup h1,
-#mc_embed_signup h2,
-#mc_embed_signup h3,
-#mc_embed_signup h4,
-#mc_embed_signup h5,
-#mc_embed_signup a {
-    color: #fff;
 }
 
 #mc_embed_signup input {
@@ -449,6 +442,14 @@ pre {
     width: 95%;
     height: 24px;
     font-size: 14px;
+}
+
+#mc_embed_signup select {
+    display: block;
+    width: 95%;
+    height: 36px;
+    font-size: 14px;
+    background: #fff;
 }
 
 #mc_embed_signup input#mc-embedded-subscribe {
@@ -460,26 +461,19 @@ pre {
     font-size: 20px;
 }
 
-#mc_embed_signup select {
-    display: block;
-    width: 95%;
-    height: 34px;
-    font-size: 14px;
-}
-
 #mc_embed_signup:after{
     clear: both;
     content: "";
     display: block;
 }
-form.validate {
+form.with-image {
     float: left;
     width: 60%;
 }
 .signup-image {
     float: left;
-    width: 40%;
+    width: 38%;
     margin: 0 auto;
     text-align: center;
-    padding-top: 20px;
+    padding: 20px 0 20px 2%;
 }
