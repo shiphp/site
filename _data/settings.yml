@@ -1,0 +1,24 @@
+title:  Shiphp
+tagline:  The PHP Developer's Guide to Docker
+author:
+  name: 'Karl Hughes'
+  twitter:  karllhughes
+
+# Change to true for Disqus comments
+disqus:
+  comments: false
+  disqus_shortname: 'https-lenpaul-github-io-lagrange'
+
+google-ID: 'UA-19700764-12'
+
+menu:
+- {name: 'Books', url: 'books'}
+- {name: 'Courses', url: 'courses'}
+- {name: 'Training', url: 'training'}
+
+social:
+- {icon: 'github', link: 'https://www.github.com/shiphp'}
+- {icon: 'envelope', link: 'mailto:info@shiphp.com'}
+- {icon: 'rss', link: 'feed.xml'}
+
+# Available social icons are powered by Font Awesome, so you can use any icon that they offer
