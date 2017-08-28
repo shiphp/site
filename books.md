@@ -1,5 +1,5 @@
 ---
-layout: books-page
+layout: page
 title: Books
 ---
 
@@ -23,3 +23,5 @@ The application we build in this eBook will do many of the key things web develo
 - And more!
 
 Once you've completed this book, you'll be ready for more advanced topics covered in our [courses](/courses).
+
+{% include ebook-form-2.html %}
