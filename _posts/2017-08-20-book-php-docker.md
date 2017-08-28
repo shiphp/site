@@ -2,7 +2,6 @@
 layout: post
 title: "Announcing the first Shiphp eBook on PHP and Docker"
 author: "Karl Hughes"
-categories: docker
 tags: [announcements,books]
 image:
   feature: mountains.jpg
