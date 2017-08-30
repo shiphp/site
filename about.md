@@ -3,7 +3,9 @@ layout: page
 title: About
 ---
 
-I've been building PHP web applications for the past six years. Like many PHP developers, I'm mostly self-taught and started out just hacking around on Wordpress sites. Since those early days, I've had a lot of great teachers and mentors, but I've also read a lot of books and completed dozens of tutorials.
+<img src="/assets/img/headshot.png" style="float:right; width: 200px; height: auto; margin-left: 20px;">
+
+My name is Karl and I've been building PHP web applications for the past six years. Like many PHP developers, I'm mostly self-taught and started out just hacking around on Wordpress sites. Since those early days, I've had a lot of great teachers and mentors, but I've also read a lot of books and completed dozens of tutorials.
 
 A couple years ago, I took on the task of learning Docker, but I realized there weren't many great resources for PHP developers just starting out with it. After struggling for a while, I eventually found my footing, and now that I've been using Docker exclusively for local developer and to ship many projects, I've put together this site as a resource for other developers looking to learn it.
 
