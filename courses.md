@@ -14,7 +14,7 @@ title: Courses
 If you're a PHP developer who wants to learn Docker, this is the course for you. In this course, we'll cover all the fundamentals of how Docker works as well as how it can be used in existing and new PHP applications.
 
 <p style="text-align:center; font-weight:bold">
-<a href="/courses#ready-to-get-started">Enroll Now!</a>
+<a href="/courses#course-form">Enroll Now!</a>
 </p>
  
 ### Who is this course for?
@@ -52,7 +52,5 @@ You can also buy a premium course pack to receive:
 - Pre-recorded video lessons for each of the courses
 - Real-time help for any Docker and PHP questions you have for 12 months
 - Invitation to our private community of PHP/Docker devs
-
-## Ready to get started?
 
 {% include course-form-1.html %}

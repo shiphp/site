@@ -9,7 +9,7 @@ title: Books
 
 ## Building PHP Applications in Docker
 
-#### A Step By Step Guide for PHP Developers Learning Docker
+#### A **FREE** Step By Step Guide for PHP Developers Learning Docker
 
 Docker has quickly become the container engine of choice, and it may be replacing a virtual machine near you soon. This step-by-step guide will walk you through the process of building a real PHP web application using Docker while explaining the basics of the platform along the way.
 
@@ -17,9 +17,9 @@ The application we build in this eBook will do many of the key things web develo
 
 - Installing dependencies using Composer.
 - Getting data from a third-party API.
-- Saving data to a database.
+- Saving data to a MySQL database.
 - Using a web framework (SlimPHP) for routing.
-- Storing environmental variables securely using a .env file.
+- Storing environmental variables securely.
 - And more!
 
 Once you've completed this book, you'll be ready for more advanced topics covered in our [courses](/courses).

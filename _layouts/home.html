@@ -7,7 +7,7 @@ title: Home
 {% include ebook-form-1.html %}
 </div>
 
-<h1>Latest Blog Posts</h1>
+<h1 id="blog">Latest Blog Posts</h1>
 
 {% for post in paginator.posts %}
 <div class="posts">
@@ -15,10 +15,10 @@ title: Home
     <a href="{{ site.url }}{{ post.url }}">{{ post.title }}</a>
   </h2>
   {% if post.image.teaser %}
-    <a href="/{{ post.url }}"><img src="/assets/img/{{ post.image.teaser }}"></a>
+    <a href="{{ site.url }}{{ post.url }}"><img src="/assets/img/{{ post.image.teaser }}"></a>
   {% endif %}
   <p>
-    {{ post.content | strip_html | truncate: 350 }} <a href="/{{ post.url }}">Read more</a>
+    {{ post.content | strip_html | truncate: 350 }} <a href="{{ site.url }}{{ post.url }}">Read more</a>
     <span class="post-date" style="margin-top:3px"><i class="fa fa-calendar" aria-hidden="true"></i> {{ post.date | date_to_string }} - <i class="fa fa-clock-o" aria-hidden="true"></i> {% include read-time.html %}</span>
   </p>
 </div>
