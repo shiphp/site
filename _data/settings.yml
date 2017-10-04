@@ -19,6 +19,7 @@ menu:
 - {name: 'Blog', url: '#blog'}
 
 social:
+- {icon: 'twitter', link: 'https://twitter.com/shiphpnow'}
 - {icon: 'github', link: 'https://www.github.com/shiphp'}
 - {icon: 'envelope', link: 'mailto:info@shiphp.com'}
 - {icon: 'rss', link: 'feed.xml'}
