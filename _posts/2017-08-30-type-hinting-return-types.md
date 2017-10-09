@@ -24,7 +24,7 @@ hinting](http://php.net/manual/en/functions.arguments.php#functions.arguments.ty
 is when a function input’s type is specified in the definition of the function’s
 parameters. That sounds like a mouthful, but it’s really not that hard to grasp
 in practice once you are familiar with [functions in
-PHP](https://medium.com/shiphp/writing-functions-in-php-37e551b4807f).
+PHP](http://www.shiphp.com/blog/2017/php-functions).
 
 Let’s look at a simple function that converts a string to an integer in PHP:
 

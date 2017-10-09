@@ -9,7 +9,7 @@ tags: [tutorials,php,docker,intermediate]
 ![](https://i.imgur.com/RI8zECF.jpg?1)
 
 If you’re used to running [PHP command line
-applications](https://medium.com/shiphp/writing-a-php-command-line-script-31073babdef),
+applications](https://www.shiphp.com/blog/2017/php-command-line-script),
 adding Docker could be a great way to increase the reusability and portability
 of your scripts. Docker allows you to run your code in isolated containers
 rather than on the host machine directly, meaning that even if you don’t have
@@ -17,7 +17,7 @@ the same version of PHP or extensions installed, you can be sure that your
 script will run the same way on anyone’s Docker container anyway.
 
 *Before we start, you should be familiar with [writing command line
-scripts](https://medium.com/shiphp/writing-a-php-command-line-script-31073babdef)
+scripts](https://www.shiphp.com/blog/2017/php-command-line-script)
 in PHP and you should have [Docker
 installed](https://docs.docker.com/engine/installation/).
 

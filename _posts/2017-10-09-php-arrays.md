@@ -58,7 +58,7 @@ let’s continue on.
 #### Debugging arrays
 
 You might want to debug an array. If you’re [running a PHP command line
-script](https://medium.com/shiphp/writing-a-php-command-line-script-31073babdef),
+script](https://www.shiphp.com/blog/2017/php-command-line-script),
 then you can create a file like this:
 
     <?php

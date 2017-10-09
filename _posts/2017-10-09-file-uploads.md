@@ -69,7 +69,7 @@ the composer package:
 
 * Fill in your bucket name, key, secret, and region.
 * Run the file in [PHP’s built in
-webserver](https://medium.com/shiphp/making-your-first-website-with-php-98a75f64e625):
+webserver](https://www.shiphp.com/blog/2017/php-website):
 `$ php -S localhost:8000 upload.php`
 * Go to [http://localhost:8000](http://localhost:8000/) and you should be able to
 upload a file and see it in Amazon S3. It’s just that simple!
