@@ -2,7 +2,8 @@
 layout: post
 title: "Announcing our First eBook on PHP and Docker"
 author: "Karl Hughes"
-tags: [announcements,books]
+categories: [announcements]
+tags: [books]
 image:
   feature: mountains.jpg
   teaser: mountains-teaser.jpg

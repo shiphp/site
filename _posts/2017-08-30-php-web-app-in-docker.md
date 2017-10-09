@@ -2,6 +2,7 @@
 layout: post
 title: "Running a PHP Web App in a Docker Container"
 author: "Karl Hughes"
+categories: [tutorials]
 tags: [tutorials,php,docker,intermediate]
 ---
 

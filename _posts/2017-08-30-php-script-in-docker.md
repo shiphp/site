@@ -2,6 +2,7 @@
 layout: post
 title: "Running a PHP Script in a Docker Container"
 author: "Karl Hughes"
+categories: [tutorials]
 tags: [tutorials,php,docker,intermediate]
 ---
 

@@ -2,6 +2,7 @@
 layout: post
 title: "Type Hinting and Return Types in PHP 7"
 author: "Karl Hughes"
+categories: [tutorials]
 tags: [tutorials,php,php7,intermediate]
 ---
 
