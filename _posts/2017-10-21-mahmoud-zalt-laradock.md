@@ -65,7 +65,7 @@ The project contains a great list of helpful features, for API developers. Some 
  - Exception formatters
  - ETag, CORS, and query parameters
  - API test helpers
- - Auto ID encoding/deciding
+ - Auto ID encoding/decoding
  - Role-based access control
  - Auto CRUD endpoints generator
  - And much more
