@@ -60,7 +60,7 @@ Hub](https://hub.docker.com/_/mysql/).
 ### 3. Run the PHP Script Within a Container
 
 In a previous demo, we covered [running a PHP script in a Docker
-container](https://medium.com/shiphp/running-a-php-script-in-a-docker-container-d9e6142bae11).
+container](https://www.shiphp.com/blog/2017/php-script-in-docker).
 You’ll notice that this Docker run command is different, but after you run it,
 you should see the MySQL version in your command line (something like `5.7.18`).
 
@@ -71,7 +71,7 @@ you should see the MySQL version in your command line (something like `5.7.18`).
 * `docker run --rm -v $(pwd):/app -w /app` tells docker to create a removable
 container with a mounted volume containing our code in its working directory.
 There are [more details in my post on running a PHP script in a Docker
-container](https://medium.com/shiphp/running-a-php-script-in-a-docker-container-d9e6142bae11).
+container](https://www.shiphp.com/blog/2017/php-script-in-docker).
 * `--link database` this links the database container we just created with the PHP
 container we’re making now. By default Docker won’t let containers talk to one
 another (which is great for security), but you can specify links using the

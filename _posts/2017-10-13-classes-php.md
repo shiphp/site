@@ -65,7 +65,7 @@ add this code:
     echo $example->classFunction();
 
 Now you can run this [PHP file in your
-terminal](https://medium.com/shiphp/writing-a-php-command-line-script-31073babdef)
+terminal](https://www.shiphp.com/blog/2017/php-script-in-docker)
 with the command: `$ php index.php` . You should see `Hello World!` when it’s
 done.
 

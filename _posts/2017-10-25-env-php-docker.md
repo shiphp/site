@@ -33,7 +33,7 @@ above with the following:
 
 Most of the options in this `docker run` command are covered in [the tutorial on
 running PHP scripts within
-containers](https://medium.com/shiphp/running-a-php-script-in-a-docker-container-d9e6142bae11),
+containers](https://www.shiphp.com/blog/2017/php-script-in-docker),
 but the last flag `-e ENV_VAR='Hello World!'` sets a container-wide variable
 that the PHP script can access, and you should see `Hello World!` in the command
 line when running this.
@@ -81,7 +81,7 @@ package first, and modify your PHP script a little.
 First, [install the phpdotenv
 package](https://github.com/vlucas/phpdotenv#installation-with-composer) (for
 more info on installing Composer Packages with Docker, [see this
-tutorial](https://medium.com/shiphp/installing-php-packages-with-docker-and-composer-1fb907637863)):
+tutorial](https://www.shiphp.com/blog/2017/composer-php-docker)):
 
     docker run --rm -v $(pwd):/app composer/composer:latest require vlucas/phpdotenv
 
@@ -100,7 +100,7 @@ with spaces:
 
 And then you can run the PHP script [using your Docker command as we did in the
 previous
-tutorial](https://medium.com/shiphp/running-a-php-script-in-a-docker-container-d9e6142bae11):
+tutorial](https://www.shiphp.com/blog/2017/php-script-in-docker):
 
     docker run --rm -v $(pwd):/app -w /app php:cli php index.php
 
