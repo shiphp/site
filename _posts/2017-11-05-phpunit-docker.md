@@ -34,7 +34,7 @@ integer when passed in.
 
 Next, let’s install and configure PHPUnit to test this class. Because we’re
 using Docker, we’ll install PHPUnit via [Composer in a
-container](https://medium.com/shiphp/installing-php-packages-with-docker-and-composer-1fb907637863):
+container](https://www.shiphp.com/blog/2017/composer-php-docker):
 
     docker run --rm -v $(pwd):/app composer/composer:latest require --dev phpunit/phpunit ^6.0
 

@@ -11,7 +11,7 @@ tags: [php,beginner,arrays]
 Arrays are an important and widely used type in PHP. They are essentially
 ordered maps that allow developers quick access to key-value storage in their
 applications. For some basic array examples, [see my previous post of working
-with arrays in PHP](https://medium.com/shiphp/working-with-arrays-in-php-71f45c80ea92).
+with arrays in PHP](https://www.shiphp.com/blog/2017/php-arrays).
 
 PHP has [over 75 array functions](http://php.net/manual/en/ref.array.php) to
 help you manipulate and use arrays more efficiently. Since that’s a bit
@@ -124,7 +124,7 @@ matches.*
 This is one of my favorite array functions. It allows you to loop over an array
 and manipulate each value or call some external function. It can be used as [a
 more concise looping
-method](https://medium.com/shiphp/introduction-to-loops-in-php-6e5d5e3ef96c).
+method](https://www.shiphp.com/blog/2017/php-loops).
 
 #### Code
 

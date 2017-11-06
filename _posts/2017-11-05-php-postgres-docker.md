@@ -9,7 +9,7 @@ tags: [php,docker,intermediate,postgres]
 ![](https://i.imgur.com/4YGjEZr.jpg)
 
 [MySQL may be the standard
-choice](https://medium.com/shiphp/using-docker-to-run-a-php-and-mysql-application-b89f89098cc5)
+choice](https://www.shiphp.com/blog/2017/php-mysql-docker)
 in relational databases for PHP developers, but Postgres is a great option as
 well. The setup is very similar, and running Postgres and PHP within Docker
 containers is just as easy.
@@ -73,7 +73,7 @@ The command I ended up with is:
 * `docker run --rm -v $(pwd):/app -w /app` tells docker to create a removable
 container with a mounted volume containing our code in its working directory.
 There are [more details in my post on running a PHP script in a Docker
-container](https://medium.com/shiphp/running-a-php-script-in-a-docker-container-d9e6142bae11).
+container](https://www.shiphp.com/blog/2017/php-script-in-docker).
 * `--link database` this links the database container we just created with the PHP
 container we’re making now. By default Docker won’t let containers talk to one
 another (which is great for security), but you can specify links using the

@@ -9,7 +9,7 @@ tags: [php,beginner]
 ![](https://i.imgur.com/w9R6Goe.jpg)
 
 While the `switch` statement isn’t as popular as [conditional
-operators](https://medium.com/shiphp/conditional-operators-in-php-8f528aec4c82)
+operators](https://www.shiphp.com/blog/2017/php-conditional-operators)
 like `if` and `elseif` in PHP, it can still be useful when evaluating a number
 of possible outcomes. Using a `switch` statement is pretty simple, so let’s look
 at an example:

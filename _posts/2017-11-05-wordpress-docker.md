@@ -14,14 +14,14 @@ within Docker containers is a valuable skill for PHP developers.
 This tutorial will use the [official Wordpress Docker
 image](https://hub.docker.com/_/wordpress/) as well as some tricks we learned in
 a previous tutorial about [using PHP and MySQL in
-containers](https://medium.com/shiphp/using-docker-to-run-a-php-and-mysql-application-b89f89098cc5).
+containers](https://www.shiphp.com/blog/2017/php-mysql-docker).
 Let’s get started!
 
 ### 1. Starting up a Database Container
 
 Before we run Wordpress, let’s get a MySQL instance started so we can link it to
 our Wordpress container. As we explained in [a previous
-tutorial](https://medium.com/shiphp/using-docker-to-run-a-php-and-mysql-application-b89f89098cc5),
+tutorial](https://www.shiphp.com/blog/2017/php-mysql-docker),
 we’ll use MySQL 5 and a non-root user for the database. The only additional
 option we are passing in for this example is a database name (see `-e
 MYSQL_DATABASE=wordpress`).
@@ -67,7 +67,7 @@ the default database host name.
 * `-e WORDPRESS_DB_USER=... -e WORDPRESS_DB_PASSWORD=... -e WORDPRESS_DB_NAME=...`
 sets environmental variables for our database connection in the Wordpress
 container. You could also use a `.env` file (see [section 2 in this
-article](https://medium.com/shiphp/environmental-variables-in-php-and-docker-cae58177e679)
+article](https://www.shiphp.com/blog/2017/env-php-docker)
 for details).
 * `wordpress` is the name of the official Docker image for Wordpress. More
 environmental options can be found in [their documentation on Docker

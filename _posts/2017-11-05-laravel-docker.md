@@ -30,7 +30,7 @@ developers tend to use MySQL, let’s start up a MySQL database container.
 
 This command is covered in more detail in a previous post on [using MySQL and
 PHP with
-Docker](https://medium.com/shiphp/using-docker-to-run-a-php-and-mysql-application-b89f89098cc5),
+Docker](https://www.shiphp.com/blog/2017/php-mysql-docker),
 so check that out if you’re new at this.
 
 ### Installing Laravel with a Composer Container

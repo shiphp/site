@@ -9,7 +9,7 @@ tags: [php,docker,intermediate,slimphp]
 ![](https://i.imgur.com/qJXcCqu.png)
 
 Using Docker to run [a simple PHP web
-application](https://medium.com/shiphp/running-a-php-web-app-in-a-docker-container-8df1ee15c019)
+application](https://www.shiphp.com/blog/2017/php-web-app-in-docker)
 is one thing, but how hard is it to install and run a small framework like
 [SlimPHP](https://www.slimframework.com/) in Docker containers? Let’s try it
 out!
@@ -23,7 +23,7 @@ Docker, we should use a container.
 
 * First, make a new directory, navigate to it in your command line terminal.
 * Next, install SlimPHP using the [Composer Docker
-container](https://medium.com/shiphp/installing-php-packages-with-docker-and-composer-1fb907637863):
+container](https://www.shiphp.com/blog/2017/composer-php-docker):
 
 ```
 docker run --rm -v $(pwd):/app composer/composer:latest
@@ -57,7 +57,7 @@ $app->run();
 ```
 
 * Now we can try running the small PHP application with the [official PHP/Apache
-container](https://medium.com/shiphp/running-a-php-web-app-in-a-docker-container-8df1ee15c019):
+container](https://www.shiphp.com/blog/2017/php-web-app-in-docker):
 
 ```
 docker run --rm -p 8000:80 -v $(pwd):/var/www/html php:apache
