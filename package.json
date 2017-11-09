@@ -1,7 +1,7 @@
 {
   "name": "site",
   "scripts": {
-    "app:local:up": "docker run --rm --name shiphp-site -d -v $PWD:/srv/jekyll -p 4000:4000 jekyll/jekyll:latest jekyll serve",
-    "app:local:down": "docker rm shiphp-site"
+    "app:up": "docker run --rm --name shiphp-site -d -v $PWD:/srv/jekyll -p 4000:4000 jekyll/jekyll:latest jekyll serve",
+    "app:down": "docker rm -f shiphp-site"
   }
 }
