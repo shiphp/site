@@ -22,6 +22,6 @@ social:
 - {icon: 'twitter', link: 'https://twitter.com/shiphpnow'}
 - {icon: 'github', link: 'https://www.github.com/shiphp'}
 - {icon: 'envelope', link: 'mailto:info@shiphp.com'}
-- {icon: 'rss', link: 'feed.xml'}
+- {icon: 'rss', link: '/feed.xml'}
 
 # Available social icons are powered by Font Awesome, so you can use any icon that they offer
