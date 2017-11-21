@@ -58,7 +58,7 @@ Codemason is very robust. Behind the scenes we use a variety of open source proj
 
 We keep a list of key technologies and open source projects that help Codemason on our [Thank You page](https://codemason.io/thanks).
 
-The Codemason dashboard is built with [Laravel](https://laravel.com/) and [Spark])(https://spark.laravel.com/) on the backend and [Vuejs](https://vuejs.org/) on the frontend. Spark is a Laravel package that provides scaffolding for SaaS applications - it's been great so far and has saved a considerable amount of time. I also extended Spark to support multiple subscriptions which we use for to bill for our managed add-ons. I'll be publishing a blog post explaining how to extend Spark to support multiple subscriptions soon.
+The Codemason dashboard is built with [Laravel](https://laravel.com/) and [Spark](https://spark.laravel.com/) on the backend and [Vuejs](https://vuejs.org/) on the frontend. Spark is a Laravel package that provides scaffolding for SaaS applications - it's been great so far and has saved a considerable amount of time. I also extended Spark to support multiple subscriptions which we use for to bill for our managed add-ons. I'll be publishing a blog post explaining how to extend Spark to support multiple subscriptions soon.
 
 The other key part of Codemason is the [Mason CLI](https://codemason.io/docs/master/creating-apps). The Mason CLI is a completely open source command line tool built with Node.js that you can use to improve your development and deployment experience.
 
