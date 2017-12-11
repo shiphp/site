@@ -84,8 +84,7 @@ To run the above Docker `run` command in “detached” mode (meaning you can do
 other things in your terminal while it’s running, simply add the `-d` flag
 anywhere to your `docker run` command. For example:
 
-    docker run 
-     --rm --name wp-local --link database:mysql -e WORDPRESS_DB_USER=admin -e WORDPRESS_DB_PASSWORD=P^RKvF -e WORDPRESS_DB_NAME=wordpress -p 8080:80 wordpress
+    docker run --rm --name wp-local --link database:mysql -e WORDPRESS_DB_USER=admin -e WORDPRESS_DB_PASSWORD=P^RKvF -e WORDPRESS_DB_NAME=wordpress -p 8080:80 wordpress
 
 #### Using a Volume for File Uploads
 
@@ -93,8 +92,7 @@ You may be wondering what happens if a user uploads a file. Well, the file gets
 uploaded to the container, but it’s not visible anywhere in your host system. We
 can fix that by mounting Wordpress’ file upload directory as a volume:
 
-    docker run -d --rm --name wp-local --link database:mysql -e WORDPRESS_DB_USER=admin -e WORDPRESS_DB_PASSWORD=P^RKvF -e WORDPRESS_DB_NAME=wordpress 
-     -p 8080:80 wordpress
+    docker run -d --rm --name wp-local --link database:mysql -v $(pwd)/wp-content/uploads:/var/www/html/wp-content/uploads -e WORDPRESS_DB_USER=admin -e WORDPRESS_DB_PASSWORD=P^RKvF -e WORDPRESS_DB_NAME=wordpress -p 8080:80 wordpress
 
 The new part of this command mounts a volume from our local filesystem into the
 Wordpress container and vice-versa. Now when we upload a file in our local
@@ -107,8 +105,7 @@ Similarly, we can mount the whole `wp-content` directory to keep plugins,
 themes, and uploads synced on our local machine and in our container. It just
 takes a slight modification to the above command:
 
-    docker run -d --rm --name wp-local --link database:mysql -e WORDPRESS_DB_USER=admin -e WORDPRESS_DB_PASSWORD=P^RKvF -e WORDPRESS_DB_NAME=wordpress 
-     -p 8080:80 wordpress
+    docker run -d --rm --name wp-local --link database:mysql -v $(pwd)/wp-content:/var/www/html/wp-content -e WORDPRESS_DB_USER=admin -e WORDPRESS_DB_PASSWORD=P^RKvF -e WORDPRESS_DB_NAME=wordpress -p 8080:80 wordpress
 
 Now any changes we make to any plugins on our local system or any new themes we
 add will show up in the running Wordpress container.
