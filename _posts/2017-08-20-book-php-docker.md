@@ -21,7 +21,3 @@ We are excited to announce the release of our first eBook, [_Building PHP Applic
 - And much more!
 
 You can read more abou the book and download a copy **for free** for a limited time from [our books page](/books). Be sure to let us know what you think about the book and what you'd like to see covered in future editions by reaching out through our [contact page](/contact).
-
-<div style="text-align:center">
-  <a href="/books#building-php-applications-in-docker">Download "Building PHP Applications in Docker" Free!</a>
-</div>

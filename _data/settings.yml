@@ -14,7 +14,6 @@ google-ID: 'UA-19700764-12'
 menu:
 - {name: 'Home', url: ''}
 - {name: 'Books', url: 'books'}
-- {name: 'Courses', url: 'courses'}
 - {name: 'Training', url: 'training'}
 - {name: 'Blog', url: '#blog'}
 
