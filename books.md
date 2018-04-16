@@ -4,7 +4,7 @@ title: Books
 ---
 
 <a href="/books#building-your-first-php-application-with-docker">
-<img style="float: right; width: 30%; height: auto; margin-left: 10px;" src="https://i.imgur.com/ULy4ckE.jpg">
+<img style="float: right; width: 30%; height: auto; margin-left: 10px;" src="https://i.imgur.com/Gui5RIk.png">
 </a>
 
 ## Building Your First PHP Application with Docker
