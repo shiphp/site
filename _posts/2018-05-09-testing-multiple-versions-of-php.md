@@ -37,7 +37,7 @@ function sortArrayOfObjects(string $field, array $objects): array
 }
 ```
 
-This function uses several features only available in PHP 7.0 including [scalar type hints](https://www.shiphp.com/blog/2017/type-hinting-return-types), [return types](https://www.shiphp.com/blog/2017/type-hinting-return-types), and [the "spaceship" operator](https://wiki.php.net/rfc/combined-comparison-operator). 
+This function will take an [array](https://www.shiphp.com/blog/2017/php-arrays) of objects and sort them by a field you choose. It uses several features only available in PHP 7.0 including [scalar type hints](https://www.shiphp.com/blog/2017/type-hinting-return-types), [return types](https://www.shiphp.com/blog/2017/type-hinting-return-types), and [the "spaceship" operator](https://wiki.php.net/rfc/combined-comparison-operator). 
 
 ## The Test
 
@@ -88,7 +88,7 @@ Next, add a `composer.json` file to the root of your project:
 }
 ``` 
 
-And install the dependencies using Docker:
+And install the dependencies using [Docker and Composer](https://www.shiphp.com/blog/2017/composer-php-docker):
 
 ```bash
 docker run --rm -v $(pwd):/app -w /app composer install
