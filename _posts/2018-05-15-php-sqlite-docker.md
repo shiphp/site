@@ -10,7 +10,7 @@ tags: [php,docker,sqlite,databases]
 
 Another great feature of SQLite is that it's built into the [default PHP images on Docker Hub](https://hub.docker.com/_/php/), so you don't even have to start up another Docker container, and running a PHP application with a SQLite database is essentially a one-liner. Let's take a look at how you can incorporate SQLite into your Dockerized PHP apps.
 
-![](https://i.imgur.com/U6fSWpz.jpg)
+![](https://i.imgur.com/tju2x2P.jpg)
 
 ## The Code
 
