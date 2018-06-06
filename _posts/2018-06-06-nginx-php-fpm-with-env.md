@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Building an NGinx and PHP FPM Docker Image with an Environment Variable as a Hostname"
+title: "Building a Single NGinx Docker Image For All My PHP-FPM Containers"
 author: "Karl Hughes"
 categories: [tutorials]
 tags: [nginx,php-fpm,docker,env]
