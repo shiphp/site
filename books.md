@@ -24,4 +24,6 @@ The application we build in this eBook will do many of the key things web develo
 
 You can [buy this book on Leanpub](https://leanpub.com/first-php-docker-application) or sign up to get a coupon code to download it for **FREE**.
 
+_Also <a href="https://leanpub.com/first-php-docker-application-ru" target="_blank">available in Russian</a>_.
+
 {% include ebook-form-2.html %}
