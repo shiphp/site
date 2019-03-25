@@ -126,7 +126,6 @@ Creating a MySQL view gives you the best of both worlds though. Once it's set up
 
 ```php
 <?php
-
 // Get the first 10 teachers at "A High School"
 TeacherSummary::where('school', 'A High School')->skip(0)->take(10)->get();
 ```
@@ -145,24 +144,24 @@ My IDE told me execution took 1.184 seconds. For comparison, making the same `se
 
 Because MySQL views are just a shortcut to the underlying query, I decided to start by running an [`explain`](https://dev.mysql.com/doc/refman/8.0/en/explain-output.html) on the `select * from teacher_summaries;` query. This gave me the following output:
 
-| id | select_type | table           | partitions | type   | possible_keys                                                                | key                              | key_len | ref                          | rows        | filtered | Extra                                              | 
-|----|-------------|-----------------|------------|--------|------------------------------------------------------------------------------|----------------------------------|---------|------------------------------|-------------|----------|----------------------------------------------------| 
-| 1  | PRIMARY     | <derived2>      |            | ALL    |                                                                              |                                  |         |                              | 61833440359 | 100      |                                                    | 
-| 2  | DERIVED     | users           |            | ref    | "users_school_index,users_type_index"                                        | users_type_index                 | 90      | const                        | 1117        | 17.44    | Using where; Using temporary; Using filesort       | 
-| 2  | DERIVED     | graider_reviews |            | ALL    | graider_reviews_created_at_index                                             |                                  |         |                              | 4330        | 100      | Using where; Using join buffer (Block Nested Loop) | 
-| 2  | DERIVED     | <derived7>      |            | ref    | <auto_key0>                                                                  | <auto_key0>                      | 8       | assignments.users.ID         | 10          | 100      | Using where                                        | 
-| 2  | DERIVED     | <derived6>      |            | ref    | <auto_key0>                                                                  | <auto_key0>                      | 8       | assignments.users.ID         | 10          | 100      | Using where                                        | 
-| 2  | DERIVED     | <derived5>      |            | ref    | <auto_key0>                                                                  | <auto_key0>                      | 4       | assignments.users.ID         | 10          | 100      |                                                    | 
-| 2  | DERIVED     | <derived4>      |            | ref    | <auto_key0>                                                                  | <auto_key0>                      | 4       | assignments.users.ID         | 10          | 100      |                                                    | 
-| 2  | DERIVED     | <derived3>      |            | ref    | <auto_key0>                                                                  | <auto_key0>                      | 4       | assignments.users.ID         | 7           | 100      |                                                    | 
-| 3  | DERIVED     | sa              |            | ref    | "section_assignments_assignment_id_foreign,section_assignments_status_index" | section_assignments_status_index | 767     | const                        | 721         | 10       | Using where; Using temporary; Using filesort       | 
-| 3  | DERIVED     | a               |            | eq_ref | "PRIMARY,assignments_creator_id_index"                                       | PRIMARY                          | 4       | assignments.sa.assignment_id | 1           | 100      |                                                    | 
-| 4  | DERIVED     | sa              |            | ALL    | section_assignments_assignment_id_foreign                                    |                                  |         |                              | 5481        | 9        | Using where; Using temporary; Using filesort       | 
-| 4  | DERIVED     | a               |            | eq_ref | "PRIMARY,assignments_creator_id_index"                                       | PRIMARY                          | 4       | assignments.sa.assignment_id | 1           | 100      |                                                    | 
-| 5  | DERIVED     | sa              |            | ALL    | section_assignments_assignment_id_foreign                                    |                                  |         |                              | 5481        | 9        | Using where; Using temporary; Using filesort       | 
-| 5  | DERIVED     | a               |            | eq_ref | "PRIMARY,assignments_creator_id_index"                                       | PRIMARY                          | 4       | assignments.sa.assignment_id | 1           | 100      |                                                    | 
-| 6  | DERIVED     | transactions    |            | index  | "transactions_teacher_id_index,transactions_type_index"                      | transactions_teacher_id_index    | 8       |                              | 2074        | 51.74    | Using where                                        | 
-| 7  | DERIVED     | transactions    |            | index  | "transactions_teacher_id_index,transactions_type_index"                      | transactions_teacher_id_index    | 8       |                              | 2074        | 51.74    | Using where                                        | 
+|id |rows     |filtered|Extra                                                              |
+|---|---------|--------|-------------------------------------------------------------------|
+|1  |61833440359|100     |                                                                   |
+|2  |1117     |17.44   |Using where; Using temporary; Using filesort                       |
+|2  |4330     |100     |Using where; Using join buffer (Block Nested Loop)                 |
+|2  |10       |100     |Using where                                                        |
+|2  |10       |100     |Using where                                                        |
+|2  |10       |100     |                                                                   |
+|2  |10       |100     |                                                                   |
+|2  |7        |100     |                                                                   |
+|3  |721      |10      |Using where; Using temporary; Using filesort                       |
+|3  |1        |100     |                                                                   |
+|4  |5481     |9       |Using where; Using temporary; Using filesort                       |
+|4  |1        |100     |                                                                   |
+|5  |5481     |9       |Using where; Using temporary; Using filesort                       |
+|5  |1        |100     |                                                                   |
+|6  |2074     |51.74   |Using where                                                        |
+|7  |2074     |51.74   |Using where                                                        |
 
 I like `explain`, but this was too much. I see there's a problem in the first row of output (MySQL is scanning 61,833,440,359 rows just to execute a `select *`!), but I have no idea which row corresponds to which part of the query.
 
@@ -178,10 +177,10 @@ explain select a.teacher_id, count(sa.id) as teacher_revision_request_count from
 
 Netted this result:
 
-| id | select_type | table | partitions | type   | possible_keys                             | key     | key_len | ref                          | rows | filtered | Extra                                        | 
-|----|-------------|-------|------------|--------|-------------------------------------------|---------|---------|------------------------------|------|----------|----------------------------------------------| 
-| 1  | SIMPLE      | sa    |            | ALL    | section_assignments_assignment_id_foreign |         |         |                              | 5481 | 9        | Using where; Using temporary; Using filesort | 
-| 1  | SIMPLE      | a     |            | eq_ref | "PRIMARY,assignments_creator_id_index"    | PRIMARY | 4       | assignments.sa.assignment_id | 1    | 100      |                                              | 
+|id |rows     |filtered|Extra                                                              |
+|---|---------|--------|-------------------------------------------------------------------|
+|1  |5481     |9       |Using where; Using temporary; Using filesort                       |
+|1  |1        |100     |                                                                   |
 
 Now I'm getting somewhere! This output tells me that the query must go through 5481 rows of the `section_assignments` table in order to execute. That's almost all the rows in the table!
 
@@ -211,8 +210,30 @@ I created a temporary duplicate of our production database, tested out my new in
 
 ## Final Results
 
-// TODO: Add this
+After pushing my new indexes to production, I saw a huge improvement in performance. First, by running the `explain select * from teacher_summaries;`, I saw that _only_ 215 million rows were being scanned. This isn't great, but compared with 62 billion before, the effect was noticeable. Here are the full results: 
+
+|id |rows     |filtered|Extra                                                              |
+|---|---------|--------|-------------------------------------------------------------------|
+|1  |215652711|100     |                                                                   |
+|2  |1117     |14.99   |Using where; Using temporary; Using filesort                       |
+|2  |11       |100     |Using where                                                        |
+|2  |10       |100     |Using where                                                        |
+|2  |10       |100     |Using where                                                        |
+|2  |10       |100     |                                                                   |
+|2  |10       |100     |                                                                   |
+|2  |10       |100     |                                                                   |
+|3  |865      |85.28   |Using where; Using temporary; Using filesort                       |
+|3  |1        |100     |                                                                   |
+|4  |394      |85.28   |Using index condition; Using where; Using temporary; Using filesort|
+|4  |1        |100     |                                                                   |
+|5  |183      |85.28   |Using index condition; Using where; Using temporary; Using filesort|
+|5  |1        |100     |                                                                   |
+|6  |1105     |100     |Using index condition; Using temporary; Using filesort             |
+
+You can also see that several parts of the query that were previously scanning ~5k rows are now down to around 1k rows. This is the primary performance improvement for this query.
+
+Ultimately, rows scanned doesn't matter that much to me though (I'm on managed database hosting and hardware is cheap). What matters is speed for users, and that improved most dramatically. Before the indexes, it took about 1.2 seconds, and now it was taking 0.3 seconds to perform the `select *` query on the view.
 
 ## Conclusion
 
-While there is probably more I could do to improve performance of this view, I'm okay with the gains I've made with these simple fixes. Software engineering is a constant balance of performance vs. pragmatism, and at our scale, we have to understand that. I'd welcome other suggestions for improving the performance of MySQL views, so [reach out to me on Twitter](https://www.twitter.com/shiphpnow) if you have your own story to add.
+While there is definitely more I could do to improve performance of this view, I'm okay with the gains I've made with these simple fixes. Software engineering is a constant balance of performance vs. pragmatism, and at our scale, we have to understand that. I'd welcome other suggestions for improving the performance of MySQL views, so [reach out to me on Twitter](https://www.twitter.com/shiphpnow) if you have your own story to add.
