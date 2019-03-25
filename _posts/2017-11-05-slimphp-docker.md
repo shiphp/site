@@ -26,7 +26,7 @@ Docker, we should use a container.
 container](https://www.shiphp.com/blog/2017/composer-php-docker):
 
 ```
-docker run --rm -v $(pwd):/app composer/composer:latest
+docker run --rm -v $(pwd):/app composer/composer:latest require slim/slim "^3.0"
 ```
 
 Now you should see a `vendor/` directory as well as a `composer.json` and
