@@ -34,7 +34,7 @@ Under the hood, we manage shared and dedicated clusters for free-tier and paid c
 
 ### Can KubeSail be used in production environments?
 
-**Absolutely! With the coming [release of domains](http://kubesail.com/domains), you can now host production apps, using your domain, that are highly available, and include a load balancer, all free of charge.** We still consider it a beta product, but are becoming very comfortable managing large Kubernetes deployments at scale. We are already seeing some developers testing production workloads on KubeSail, and we think in the next few months our feature set will complete enough to be very competitive with some of the big players.
+**Absolutely! With the coming release of domains, you will be able to host production apps, using your domain, that are highly available, and include a load balancer, all free of charge.** We still consider it a beta product, but are becoming very comfortable managing large Kubernetes deployments at scale. We are already seeing some developers testing production workloads on KubeSail, and we think in the next few months our feature set will complete enough to be very competitive with some of the big players.
 
 Because the first legitimate path to production is always by way of testing/dev/staging, etc, we’re focusing on capturing users who are “getting started” with Kubernetes - much like GitHub targets users who are getting started with Git. In that same vein however, we don’t believe even extremely advanced users will want to leave our service, as it will assist when scaling up to production workloads and while growing and iterating on their product.
 
