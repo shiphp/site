@@ -24,4 +24,4 @@ fields:
     source:
       type: simple
 pages:
-- _posts/test.md
+- _posts/2022-01-23-test.md
