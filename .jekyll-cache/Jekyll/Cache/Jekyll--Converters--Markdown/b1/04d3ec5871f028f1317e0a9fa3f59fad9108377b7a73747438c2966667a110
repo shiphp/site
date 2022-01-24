@@ -1,0 +1,130 @@
+I"�<p><img src="https://i.imgur.com/uOvTo6K.jpg" alt="" /></p>
+
+<p>A common function for most web applications is uploading and storing files from
+users. Doing this securely and reliably can be a challenge, but there are a
+couple options if you’re using PHP.</p>
+
+<h3 id="1-use-a-file-upload-service">1. Use a File Upload Service</h3>
+
+<p>If you want to ensure that your file uploads are securely and reliably stored no
+matter what web hosting environment you use, you should use a file upload
+service rather than storing the files directly on your own server. This method
+ensures that your application follows the <a href="https://12factor.net/backing-services">Twelve-Factor App
+guidelines</a>, and it allows you to scale
+without relying on system admins.</p>
+
+<p>For example, Amazon S3 will allow you to upload files in PHP:</p>
+
+<ul>
+  <li>Set up an Amazon AWS account, <a href="https://aws.amazon.com/s3/">create a bucket in
+S3</a> and <a href="http://docs.aws.amazon.com/general/latest/gr/aws-sec-cred-types.html">create an API Key and
+Secret</a>.</li>
+  <li>Install the composer package on your local machine: <code class="highlighter-rouge">composer require
+aws/aws-sdk-php</code>.</li>
+  <li>Create a PHP file called <code class="highlighter-rouge">upload.php</code> in the same directory where you installed
+the composer package:</li>
+</ul>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="cp">&lt;?php require('vendor/autoload.php');
+
+    $config = [
+        "bucket" =&gt; "...",        // Fill in with your aws bucket name
+        "key" =&gt; "...",           // Fill in with your AWS Key
+        "secret" =&gt; "...",        // Fill in with your AWS Secret
+        "region" =&gt; "us-west-2",  // Fill in with your S3 Bucket's region
+        "version" =&gt; "2006-03-01",
+    ];
+
+    $s3 = new Aws\S3\S3Client($config);
+
+    ?&gt;</span>
+    <span class="nt">&lt;html&gt;</span>
+        <span class="nt">&lt;head&gt;&lt;meta</span> <span class="na">charset=</span><span class="s">"UTF-8"</span><span class="nt">&gt;&lt;/head&gt;</span>
+        <span class="nt">&lt;body&gt;</span>
+            <span class="nt">&lt;h1&gt;</span>Uploading files to Amazon S3<span class="nt">&lt;/h1&gt;</span>
+    <span class="cp">&lt;?php
+    if($_SERVER['REQUEST_METHOD'] == 'POST' &amp;&amp; isset($_FILES['userfile']) &amp;&amp; $_FILES['userfile']['error'] == UPLOAD_ERR_OK &amp;&amp; is_uploaded_file($_FILES['userfile']['tmp_name'])) {
+
+    try {
+            $upload = $s3-&gt;upload($config['bucket'], $_FILES['userfile']['name'], fopen($_FILES['userfile']['tmp_name'], 'rb'), 'public-read');
+    ?&gt;</span>
+            <span class="nt">&lt;p&gt;</span>Upload <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">"&lt;?=htmlspecialchars($upload-&gt;get('ObjectURL'))?&gt;"</span><span class="nt">&gt;</span>successful<span class="nt">&lt;/a&gt;</span> :)<span class="nt">&lt;/p&gt;</span>
+    <span class="cp">&lt;?php } catch(Exception $e) { ?&gt;</span>
+            <span class="nt">&lt;p&gt;</span>Upload error :(<span class="nt">&lt;/p&gt;</span>
+    <span class="cp">&lt;?php } } ?&gt;</span>
+            <span class="nt">&lt;h2&gt;</span>Upload a file<span class="nt">&lt;/h2&gt;</span>
+            <span class="nt">&lt;form</span> <span class="na">enctype=</span><span class="s">"multipart/form-data"</span> <span class="na">action=</span><span class="s">"&lt;?=$_SERVER['PHP_SELF']?&gt;"</span> <span class="na">method=</span><span class="s">"POST"</span><span class="nt">&gt;</span>
+                <span class="nt">&lt;input</span> <span class="na">name=</span><span class="s">"userfile"</span> <span class="na">type=</span><span class="s">"file"</span><span class="nt">&gt;&lt;input</span> <span class="na">type=</span><span class="s">"submit"</span> <span class="na">value=</span><span class="s">"Upload"</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;/form&gt;</span>
+        <span class="nt">&lt;/body&gt;</span>
+    <span class="nt">&lt;/html&gt;</span>
+</code></pre></div></div>
+
+<ul>
+  <li>Fill in your bucket name, key, secret, and region.</li>
+  <li>Run the file in <a href="https://www.shiphp.com/blog/2017/php-website">PHP’s built in
+webserver</a>:
+<code class="highlighter-rouge">$ php -S localhost:8000 upload.php</code></li>
+  <li>Go to <a href="http://localhost:8000/">http://localhost:8000</a> and you should be able to
+upload a file and see it in Amazon S3. It’s just that simple!</li>
+</ul>
+
+<p><img src="https://i.imgur.com/8GAwr2L.png" alt="" /></p>
+
+<p>Be sure to use secure environmental variables, perform <a href="https://stackoverflow.com/questions/310714/how-to-check-file-types-of-uploaded-files-in-php">file type
+validation</a>,
+and set the permissions on your S3 bucket so that only users you want to have
+access can upload or view files.</p>
+
+<p>The downside to using a file upload service is that because the files are not
+stored on the same server as your web application code, file manipulation and
+transfer can take longer. For most apps this is a non-issue (and the problem can
+be mitigated by putting your web server in the same data center or caching
+commonly used files on your server), but if you think that storing files on your
+own server is necessary read on.</p>
+
+<h3 id="2-store-the-file-on-your-server">2. Store the File on Your Server</h3>
+
+<p>While easier, this option is typically more prone to errors and security holes.
+Giving users the ability to upload files directly to your server means they can
+potentially upload malicious scripts or even modify or read your code. Be sure
+to <a href="https://stackoverflow.com/questions/10990/what-are-the-proper-permissions-for-an-upload-folder-with-php-apache">read up on file upload permissions in
+PHP</a>
+before you use this in live code.</p>
+
+<ul>
+  <li>Create a PHP file called upload.php:</li>
+</ul>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="cp">&lt;?php
+
+    if(isset($_POST["submit"])) {
+        $target_file = basename($_FILES["fileToUpload"]["name"]);
+        if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
+            echo "The file ". basename( $_FILES["fileToUpload"]["name"]). " has been uploaded.";
+        } else {
+            echo "Something went wrong";
+        }
+    }
+
+    ?&gt;</span>
+    <span class="cp">&lt;!DOCTYPE html&gt;</span>
+    <span class="nt">&lt;html&gt;</span>
+    <span class="nt">&lt;body&gt;</span>
+
+    <span class="nt">&lt;form</span> <span class="na">action=</span><span class="s">"/"</span> <span class="na">method=</span><span class="s">"post"</span> <span class="na">enctype=</span><span class="s">"multipart/form-data"</span><span class="nt">&gt;</span>
+        Select file to upload:
+        <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"file"</span> <span class="na">name=</span><span class="s">"fileToUpload"</span> <span class="na">id=</span><span class="s">"fileToUpload"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"submit"</span> <span class="na">value=</span><span class="s">"Upload Image"</span> <span class="na">name=</span><span class="s">"submit"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;/form&gt;</span>
+
+    <span class="nt">&lt;/body&gt;</span>
+    <span class="nt">&lt;/html&gt;</span>
+</code></pre></div></div>
+
+<ul>
+  <li>Run the PHP webserver: <code class="highlighter-rouge">php -S localhost:8000 upload.php</code></li>
+  <li>Go to <a href="http://localhost:8000/">http://localhost:8000/</a> and try uploading a file.
+You should then see the file right next to your <code class="highlighter-rouge">upload.php</code> file.</li>
+</ul>
+:ET

@@ -1,0 +1,2 @@
+I"y<p>I’ve been using Docker for local development and continuous integration environments for several years now, but have always struggled more with production deploys. At first, orchestration tools were almost non-existent so everyone deployed Docker differently, but now as Kubernetes has become the dominant force in production containers, it’s started to get easier.</p>
+:ET

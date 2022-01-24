@@ -1,0 +1,77 @@
+I";<p><img src="https://i.imgur.com/RI8zECF.jpg?1" alt="" /></p>
+
+<p>If you’re used to running <a href="https://www.shiphp.com/blog/2017/php-command-line-script">PHP command line
+applications</a>,
+adding Docker could be a great way to increase the reusability and portability
+of your scripts. Docker allows you to run your code in isolated containers
+rather than on the host machine directly, meaning that even if you don’t have
+the same version of PHP or extensions installed, you can be sure that your
+script will run the same way on anyone’s Docker container anyway.</p>
+
+<p>*Before we start, you should be familiar with <a href="https://www.shiphp.com/blog/2017/php-command-line-script">writing command line
+scripts</a>
+in PHP and you should have <a href="https://docs.docker.com/engine/installation/">Docker
+installed</a>.</p>
+
+<h3 id="our-php-script">Our PHP script</h3>
+
+<p>First, let’s look at a simple “Hello World” PHP script:</p>
+
+<h4 id="hellophp">hello.php</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+
+<span class="nv">$text</span> <span class="o">=</span> <span class="s2">"Hello World!"</span><span class="p">;</span>
+
+<span class="k">echo</span> <span class="nv">$text</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>Now, open up a terminal and navigate to the directory where you saved  . Let’s
+run that script within a Docker container using the latest version of <a href="https://hub.docker.com/_/php/">PHP’s
+official CLI container</a>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ docker run --rm -v $(pwd):/app -w /app php:cli php hello.php
+</code></pre></div></div>
+
+<p>When run, you should see the PHP CLI container being downloaded (the first
+time), then you should see the output <code class="highlighter-rouge">Hello World!</code>. You’ve just run a PHP script in Docker!</p>
+
+<h3 id="but-what-does-it-mean">But what does it mean?</h3>
+
+<p>Let’s go over that Docker command (<code class="highlighter-rouge">docker run...</code>) and see what is going on:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">docker run</code> This is Docker’s command to <a href="https://docs.docker.com/engine/reference/run/">run a command within a new
+container</a>. There are a lot of
+options that you can pass in, but I tried to keep them pretty minimal for this
+example.</li>
+  <li><code class="highlighter-rouge">--rm</code> This tells Docker to “remove” the container after the command is run.
+Alternatively, you can save the container and name it to run it again.</li>
+  <li><code class="highlighter-rouge">-v $(pwd):/app</code> This is telling Docker to <a href="https://docs.docker.com/engine/tutorials/dockervolumes/">mount a
+volume</a>. You typically
+pass in a path to a folder on your root directory, a colon, and then a path to
+the folder in the container. Volumes are a powerful tool, but for this simple
+example we’re just mounting the <a href="https://www.computerhope.com/unix/upwd.htm">current
+directory</a> from our terminal into
+the <code class="highlighter-rouge">/app</code> directory in the new Docker container.</li>
+  <li><code class="highlighter-rouge">-w /app</code> This defines the Docker container’s “working directory.” That’s the place where
+it will look for code when you pass in a command to execute. Since we’re
+mounting our code into  we obviously want Docker to run code from that
+directory.</li>
+  <li><code class="highlighter-rouge">php:cli</code> The first three items in this list were Docker run flags, but <code class="highlighter-rouge">php:cli</code> is the actual
+image we’re using for this container. There are other <a href="https://hub.docker.com/_/php/">PHP containers on Docker
+Hub</a>, so be sure to check them out if you’re
+doing something different like a web app or Apache server.</li>
+  <li><code class="highlighter-rouge">php hello.php</code> Finally, this is the actual command that we want to run on the container. It is
+run relative to the working directory we defined above.</li>
+</ul>
+
+<p>You may think that was a long command to write just to run a PHP script, but
+think about what you didn’t have to do. You didn’t have to install PHP on your
+machine, and you could run that command in different versions of PHP by tweaking
+the <code class="highlighter-rouge">php:cli</code> parameter.</p>
+
+<p>As you can see, it’s easy to run a PHP script within a Docker container. Docker
+might not be right for every project and workflow, but if portability and
+modularity are concerns, I’d highly recommend giving it a try.</p>
+:ET

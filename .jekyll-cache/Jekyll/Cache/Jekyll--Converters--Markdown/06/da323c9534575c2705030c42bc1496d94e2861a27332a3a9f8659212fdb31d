@@ -1,0 +1,96 @@
+I"�<p><img src="https://i.imgur.com/1T5fFXz.png" alt="" /></p>
+
+<p>Once you’ve <a href="/blog/2017/php-web-app-in-docker">built a local PHP application using Docker</a>, you have many options for hosting. One of my favorite tools is <a href="https://hyper.sh/">Hyper.sh</a>, a container-based hosting platform that works for just about any Dockerized project you have including PHP projects. Hyper.sh charges you only for uptime on your containers, so it’s a perfect solution for continuous integration environments, development environments, or even production projects. I have successfully hosted <a href="https://www.karllhughes.com/posts/hyper-sh-weekend">several of my side projects on Hyper.sh for the past few months</a>.</p>
+
+<p>Let’s dig into the process for building and deploying a simple PHP application to Hyper.sh.</p>
+
+<h2 id="building-a-dockerized-php-application">Building a Dockerized PHP application</h2>
+
+<p>In order to demonstrate Hyper.sh’s hosting, we’ll need to build a simple PHP application. In <a href="/blog/2017/php-web-app-in-docker">a previous tutorial</a>, I showed you how to run a basic PHP web application using Docker and PHP’s official Docker image. Here’s the PHP code we’ll use:</p>
+
+<p><em>index.php</em></p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;!doctype html&gt;</span>
+<span class="nt">&lt;html</span> <span class="na">lang=</span><span class="s">"en"</span><span class="nt">&gt;</span>
+<span class="nt">&lt;head&gt;</span>
+  <span class="nt">&lt;meta</span> <span class="na">charset=</span><span class="s">"utf-8"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;title&gt;</span>My PHP Website<span class="nt">&lt;/title&gt;</span>
+<span class="nt">&lt;/head&gt;</span>
+<span class="nt">&lt;body&gt;</span>
+  <span class="nt">&lt;h1&gt;</span>My PHP Website<span class="nt">&lt;/h1&gt;</span>
+  <span class="nt">&lt;p&gt;</span>Here is some static content.<span class="nt">&lt;/p&gt;</span>
+  <span class="nt">&lt;p&gt;</span><span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="s2">"Here is some dynamic content"</span><span class="p">;</span> <span class="cp">?&gt;</span><span class="nt">&lt;/p&gt;</span>
+<span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span>
+</code></pre></div></div>
+
+<p>To run this sample PHP web app locally, run:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run <span class="nt">--rm</span> <span class="nt">-p</span> 8000:80 <span class="nt">-v</span> <span class="si">$(</span><span class="nb">pwd</span><span class="si">)</span>:/var/www/html php:apache
+</code></pre></div></div>
+
+<p>And view your website locally at <a href="http://localhost:8000/"><code class="highlighter-rouge">localhost:8000</code></a>.</p>
+
+<h2 id="pushing-our-application-to-docker-hub">Pushing our application to Docker Hub</h2>
+
+<p>In order to deploy our application, we’ll need to push it to a <a href="https://docs.docker.com/registry/">container registry</a>. <a href="https://hub.docker.com/">Docker Hub</a> is free for open source projects, and it works well with Hyper.sh, so we’ll start there.</p>
+
+<p>First, <a href="https://hub.docker.com/">create an account on Docker Hub</a>. You’ll also need to log into your Docker Hub account on your local command line by running <code class="highlighter-rouge">docker login</code> and entering your credentials.</p>
+
+<p><img src="https://i.imgur.com/K8ERq0E.png" alt="" /></p>
+
+<p>Next, we need to build the PHP project by creating a new Docker image. Add a <code class="highlighter-rouge">Dockerfile</code> to the root of the project:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>FROM php:apache
+COPY index.php /var/www/html/index.php
+</code></pre></div></div>
+
+<p>Once you’ve got the Dockerfile in the root directory with your <code class="highlighter-rouge">index.php</code> file, build an image from the command line using your Docker Hub username:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker build <span class="nb">.</span> <span class="nt">-t</span> &lt;YOUR_USERNAME&gt;/tiny-php-app
+</code></pre></div></div>
+
+<p>Finally, push that image to Docker Hub:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker push &lt;YOUR_USERNAME&gt;/tiny-php-app
+</code></pre></div></div>
+
+<p>If everything worked, you should see a bunch of hashes followed by stages of your build, and finally a long string with a <code class="highlighter-rouge">size</code> designation like this: <code class="highlighter-rouge">latest: digest: sha256:035d2fb05c6545823383adf31fa4b4dc947f72f79f68320863051b9ab2b8eb4b size: 1993</code>. That means that your Docker image was uploaded and is now available on Docker Hub.</p>
+
+<h2 id="deploying-to-hypersh">Deploying to Hyper.sh</h2>
+
+<p>Obviously, you will need an account on <a href="https://hyper.sh/">Hyper.sh</a> to host your project there, but you should also download the <a href="https://docs.hyper.sh/GettingStarted/install.html">Hyper.sh command line application</a> for this tutorial. Be sure to log into your Hyper.sh account and log into Docker Hub as well by running <code class="highlighter-rouge">hyper login</code>.</p>
+
+<p>Once you’ve logged in via the command line, you can go ahead and run your site on Hyper.sh:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>hyper run <span class="nt">-d</span> <span class="nt">-p</span> 80:80 &lt;YOUR_USERNAME&gt;/tiny-php-app
+</code></pre></div></div>
+
+<p>Hyper.sh will automatically pull the latest version of the image and start up a new container, leaving you with the ID in your command line. To ensure the container is running, run <code class="highlighter-rouge">hyper ps</code> to see a list of your running Hyper.sh containers.</p>
+
+<p>While our container is running on Port 80, we haven’t assigned a public IP address to the container, so you won’t be able to access it from the web. In order to attach an IP address, create one in Hyper.sh:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>hyper fip allocate 1
+</code></pre></div></div>
+
+<p>And then attach it to your container:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>hyper fip attach &lt;YOUR_IP&gt; &lt;YOUR_CONTAINER_ID&gt;
+</code></pre></div></div>
+
+<p>Your tiny PHP application should now be hosted live on the web at <code class="highlighter-rouge">&lt;YOUR_IP&gt;</code> address. If you don’t see it, you can log into the running container on Hyper.sh just like you would a regular Docker container to debug any issues. <a href="https://docs.hyper.sh/Reference/CLI/index.html">Hyper’s CLI</a> has most of the same commands as Docker’s CLI, so the interface should feel quite familiar.</p>
+
+<h2 id="updating-the-code">Updating the Code</h2>
+
+<p>Finally, you may want to know how to update your application. First, make a change to the <code class="highlighter-rouge">index.php</code> file. Next, you will need to rebuild the image, push it to Docker Hub, pull it from Hyper.sh, and re-run the container. In short, you will need to run something like this in your command line:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker build <span class="nb">.</span> <span class="nt">-t</span> &lt;YOUR_USERNAME&gt;/tiny-php-app
+docker push &lt;YOUR_USERNAME&gt;/tiny-php-app
+hyper pull &lt;YOUR_USERNAME&gt;/tiny-php-app
+hyper <span class="nb">rm</span> <span class="nt">-f</span> &lt;OLD_CONTAINER_ID&gt;
+hyper run <span class="nt">-d</span> <span class="nt">-p</span> 80:80 &lt;YOUR_USERNAME&gt;/tiny-php-app
+hyper fip hyper fip attach &lt;YOUR_IP&gt; &lt;NEW_CONTAINER_ID&gt;
+</code></pre></div></div>
+
+<p>Your code will now be up to date and the IP address will be attached to the new container.</p>
+:ET

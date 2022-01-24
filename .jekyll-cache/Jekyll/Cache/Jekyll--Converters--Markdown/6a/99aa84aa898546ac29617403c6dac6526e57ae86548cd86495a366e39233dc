@@ -1,0 +1,35 @@
+I"¢<p><img src="https://i.imgur.com/UOy71Kg.jpg" alt="" /></p>
+
+<p>To write a PHP command line script, you will need <a href="http://php.net/manual/en/install.php">PHP
+installed</a> on your Mac, Windows, or Linux
+machine, a terminal command line tool like
+<a href="https://en.wikipedia.org/wiki/Bash_(Unix_shell)">Bash</a>, and a text editor like
+<a href="https://www.sublimetext.com/3">Sublime</a>.</p>
+
+<ol>
+  <li>To write a command line script in PHP, open up a new blank file your favorite
+text editor.</li>
+  <li>Add an opening <code class="highlighter-rouge"><span class="cp">&lt;?php</span></code> tag to the very beginning of the new file.</li>
+  <li>On the next line, save some text to a PHP variable: <code class="highlighter-rouge">$text = "Hello World!";</code></li>
+  <li>Add a new line below that will output the text: <code class="highlighter-rouge">echo $text;</code></li>
+  <li>Now, save the file as <code class="highlighter-rouge">hello.php</code>. Be sure you know where the file is saved so
+that you can find it in your command line terminal.</li>
+  <li>Open your command line terminal and navigate to the PHP file you just created.</li>
+  <li>Run the file from your terminal by typing <code class="highlighter-rouge">php hello.php</code> and then hitting the
+<code class="highlighter-rouge">enter</code> or <code class="highlighter-rouge">return</code> key.</li>
+</ol>
+
+<p>If you did everything correctly, you should see <code class="highlighter-rouge">Hello World!</code> in the command
+line of your terminal.</p>
+
+<h3 id="references">References</h3>
+
+<h4 id="1-hellophp">1. hello.php</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+
+<span class="nv">$text</span> <span class="o">=</span> <span class="s2">"Hello World!"</span><span class="p">;</span>
+
+<span class="k">echo</span> <span class="nv">$text</span><span class="p">;</span>
+</code></pre></div></div>
+:ET

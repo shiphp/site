@@ -1,0 +1,110 @@
+I"�<p><img src="https://i.imgur.com/4YGjEZr.jpg" alt="" /></p>
+
+<p><a href="https://www.shiphp.com/blog/2017/php-mysql-docker">MySQL may be the standard
+choice</a>
+in relational databases for PHP developers, but Postgres is a great option as
+well. The setup is very similar, and running Postgres and PHP within Docker
+containers is just as easy.</p>
+
+<h3 id="1-create-a-php-script-that-connects-to-postgres">1. Create a PHP Script that Connects to Postgres</h3>
+
+<p>Let’s start by writing a simple PHP script that will connect to a Postgresql
+database. All the script is going to do is connect and let us know that the
+connection was successful:</p>
+
+<h4 id="indexphp">index.php</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+
+<span class="c1">// Connect to the database</span>
+<span class="nv">$dbconn</span> <span class="o">=</span> <span class="nb">pg_connect</span><span class="p">(</span><span class="s2">"host=database dbname=admin user=admin password=4LyM7F39w97n"</span><span class="p">);</span>
+<span class="c1">// Show the client and server versions</span>
+<span class="nb">print_r</span><span class="p">(</span><span class="nb">pg_version</span><span class="p">(</span><span class="nv">$dbconn</span><span class="p">));</span>
+</code></pre></div></div>
+
+<p>This file connects to a Postgres database using <code class="highlighter-rouge">pg_connect</code> and then shows the
+database’s version number in the terminal. This isn’t a very useful real-world
+script, but it’s a great way to test our Docker setup.</p>
+
+<h3 id="2-start-the-postgres-container">2. Start the Postgres Container</h3>
+
+<p>Next, we want to start up a Postgres Container. In this case, we’re using
+version 9.6 from <a href="https://hub.docker.com/_/postgres/">Postgres’ official Docker
+image</a>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run -d --rm --name database -e POSTGRES_USER=admin -e POSTGRES_PASSWORD=4LyM7F39w97n postgres:9.6
+</code></pre></div></div>
+
+<h4 id="whats-going-on-here">What’s going on here?</h4>
+
+<ul>
+  <li><code class="highlighter-rouge">docker run</code> is Docker’s command to <a href="https://docs.docker.com/engine/reference/run/">run a command within a new
+container</a>.</li>
+  <li><code class="highlighter-rouge">-d</code> tells the container to start in “detached” mode so that we can continue to
+work in the terminal while the container is running.</li>
+  <li><code class="highlighter-rouge">--rm</code> will “clean up” the container by removing it after we shut it down.</li>
+  <li><code class="highlighter-rouge">--name database</code> is a name we’ll use to define this container when we reference
+it within our PHP container later.</li>
+  <li><code class="highlighter-rouge">-e POSTGRES_USER=admin</code> defines the Postgres user for logging into the server.</li>
+  <li><code class="highlighter-rouge">-e POSTGRES_PASSWORD=4LyM7F39w97n</code> defines the Postgres database password.</li>
+  <li><code class="highlighter-rouge">postgres:9.6</code> specifies the image to use. It’s usually a good idea to specify
+an exact version number for databases to ensure nothing breaks when you migrate
+your data.</li>
+</ul>
+
+<h3 id="3-run-the-php-script-within-a-container">3. Run the PHP Script within a Container</h3>
+
+<p>When we run the PHP script we want to make sure it connects to the Postgres
+container and that it has all the required Postgresql extensions. Since I’ve
+been using Postgres quite a bit lately, <a href="https://hub.docker.com/r/karllhughes/php-cli-postgres/">I’ve created a Docker image for just
+such an occasion</a>, but
+feel free to create your own if you’d prefer.</p>
+
+<p>The command I ended up with is:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run --rm -v $(pwd):/app -w /app --link database karllhughes/php-cli-postgres php index.php
+</code></pre></div></div>
+
+<h4 id="whats-going-on-here-1">What’s going on here?</h4>
+
+<ul>
+  <li><code class="highlighter-rouge">docker run --rm -v $(pwd):/app -w /app</code> tells docker to create a removable
+container with a mounted volume containing our code in its working directory.
+There are <a href="https://www.shiphp.com/blog/2017/php-script-in-docker">more details in my post on running a PHP script in a Docker
+container</a>.</li>
+  <li><code class="highlighter-rouge">--link database</code> this links the database container we just created with the PHP
+container we’re making now. By default Docker won’t let containers talk to one
+another (which is great for security), but you can specify links using the
+<code class="highlighter-rouge">--link</code> option.</li>
+  <li><code class="highlighter-rouge">karllhughes/php-cli-postgres</code> instead of using the standard PHP images, I
+created a PHP CLI image with Postgres extensions installed. You could also
+create your won Dockerfile with your own custom extensions, but that’s beyond
+the scope of this tutorial.</li>
+  <li><code class="highlighter-rouge">php index.php</code> finally this command runs the PHP file that we created above.</li>
+</ul>
+
+<p>If everything worked properly, you should see an array with all the database
+version info:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Array
+(
+    [client] =&gt; 9.4.12
+    [protocol] =&gt; 3
+    [server] =&gt; 9.6.3
+    [server_encoding] =&gt; UTF8
+    [client_encoding] =&gt; UTF8
+    [is_superuser] =&gt; on
+    [session_authorization] =&gt; admin
+    [DateStyle] =&gt; ISO, MDY
+    [IntervalStyle] =&gt; postgres
+    [TimeZone] =&gt; UTC
+    [integer_datetimes] =&gt; on
+    [standard_conforming_strings] =&gt; on
+    [application_name] =&gt; 
+)
+</code></pre></div></div>
+
+<p>You’ve now connected a PHP command line script with a Postgres database
+container. There’s a lot of work left if you want to make this a useful
+application, but the rest is just code.</p>
+:ET

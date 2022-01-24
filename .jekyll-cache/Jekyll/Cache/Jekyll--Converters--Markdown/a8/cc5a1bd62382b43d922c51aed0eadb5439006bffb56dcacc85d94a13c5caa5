@@ -1,0 +1,109 @@
+I"�<p><img src="https://i.imgur.com/spkkZLS.jpg" alt="" /></p>
+
+<p>When things go wrong within your program it’s a good idea to handle the failure
+gracefully in some way. One of the best ways to <a href="http://php.net/manual/en/language.exceptions.php">deal with
+exceptions</a> is by using a
+<code class="highlighter-rouge">try...catch</code> block. Let’s take a look at how this works.</p>
+
+<h3 id="the-basics">The Basics</h3>
+
+<p>First let’s look at the success case — in other words when an exception is not
+thrown:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+<span class="k">try</span> <span class="p">{</span>
+    <span class="k">echo</span> <span class="s2">"Hello World!"</span><span class="p">;</span>
+<span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="nc">Exception</span> <span class="nv">$e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">echo</span> <span class="s2">"Whoops, something went wrong!"</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The above script will output <code class="highlighter-rouge">Hello World!</code> and everything within the <code class="highlighter-rouge">catch</code>
+block will be ignored. But, things get more interesting when your code within
+the <code class="highlighter-rouge">try</code> block throws an exception. For example:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+<span class="k">try</span> <span class="p">{</span>
+    <span class="k">echo</span> <span class="s2">"Hello World!"</span><span class="p">;</span>
+    <span class="k">throw</span> <span class="k">new</span> <span class="nc">Exception</span><span class="p">(</span><span class="s2">"Something went wrong"</span><span class="p">);</span>
+<span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="nc">Exception</span> <span class="nv">$e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">echo</span> <span class="nv">$e</span><span class="o">-&gt;</span><span class="nf">getMessage</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>In this case, the command line will output <code class="highlighter-rouge">Hello World!Something went wrong</code>.
+It executed the good code, but when an exception was thrown it went right to the
+<code class="highlighter-rouge">catch</code> block and echo’ed the message.</p>
+
+<p>The good news is that it didn’t throw an error, so this won’t reveal anything
+about the internals of our code to users unless we want to include that in the
+message.</p>
+
+<h3 id="advanced-exception-handling">Advanced Exception Handling</h3>
+
+<p>Beyond the basics of <code class="highlighter-rouge">try/catch</code> — which are undoubtedly useful — there are some
+advanced features that you can take advantage of in PHP.</p>
+
+<h4 id="multiple-exception-types">Multiple Exception Types</h4>
+
+<p>What if we want to handle different kinds of exceptions differently? Not a
+problem, just type-hint the exception class.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+<span class="k">try</span> <span class="p">{</span>
+    <span class="k">throw</span> <span class="k">new</span> <span class="nc">OutOfRangeException</span><span class="p">();</span>
+<span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="nc">OutOfBoundsException</span> <span class="nv">$e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">echo</span> <span class="s2">"You are out of bounds!"</span><span class="p">;</span>
+<span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="nc">OutOfRangeException</span> <span class="nv">$e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">echo</span> <span class="s2">"You are out of range!"</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>In the above example, we will see <code class="highlighter-rouge">You are out of range!</code></p>
+
+<h4 id="finally-blocks">“Finally” Blocks</h4>
+
+<p>What if you want to execute some code after the <code class="highlighter-rouge">try/catch</code> block, even if the
+exception was uncaught? That’s where <code class="highlighter-rouge">finally</code> comes in:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+<span class="k">try</span> <span class="p">{</span>
+    <span class="k">throw</span> <span class="k">new</span> <span class="nc">Exception</span><span class="p">();</span>
+<span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="nc">OutOfBoundsException</span> <span class="nv">$e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">echo</span> <span class="s2">"You are out of bounds!"</span><span class="p">;</span>
+<span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="nc">OutOfRangeException</span> <span class="nv">$e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">echo</span> <span class="s2">"You are out of range!"</span><span class="p">;</span>
+<span class="p">}</span> <span class="k">finally</span> <span class="p">{</span>
+    <span class="k">echo</span> <span class="s2">"Nothing left"</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Within the <code class="highlighter-rouge">try</code> block we throw an exception that neither catch block can
+handle, but before the fatal error is shown, the <code class="highlighter-rouge">finally</code> block is executed, so
+our command line output looks something like this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Nothing left
+PHP Fatal error:  Uncaught Exception in index.php:4
+...
+</code></pre></div></div>
+
+<h3 id="catching-exceptions-in-practice">Catching Exceptions in Practice</h3>
+
+<p>Showing fatal errors to end users of our web app or command line script is
+usually a bad idea, so use <code class="highlighter-rouge">try/catch</code> blocks whenever possible, but balance
+their use with the fact that internally developers may need meaningful output
+when they encounter errors. One strategy is to log any caught failures and show
+users a less descriptive error message. For example:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>try {
+    throw new Exception();
+} catch (Exception $e) {
+    echo "Something went wrong and our devs have been notified";
+    Log::info($e-&gt;getMessage());
+}
+</code></pre></div></div>
+
+<p>Just be sure that you import some kind of <a href="https://stackoverflow.com/questions/8270375/php-good-log-library/8270504">logging
+library</a>
+as<code class="highlighter-rouge">Log</code>.</p>
+:ET

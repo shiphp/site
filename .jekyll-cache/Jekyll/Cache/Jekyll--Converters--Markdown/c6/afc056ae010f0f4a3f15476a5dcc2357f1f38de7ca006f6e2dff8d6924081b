@@ -1,0 +1,181 @@
+I"�<p><img src="https://i.imgur.com/UMsmk9f.jpg" alt="" /></p>
+
+<p>Arrays are widely used in PHP to store groups of data when an object or string
+will not suffice. Those familiar with other languages may equate <a href="http://php.net/manual/en/language.types.array.php">PHP’s
+arrays</a> to dictionaries,
+lists, collections, or stacks, but essentially a PHP array is a reliable
+key-value storage system in the language. Let’s look at what an array can do in
+practice.</p>
+
+<h4 id="creating-an-array">Creating an array</h4>
+
+<p>There are several ways to create an array in PHP. You can use the <code class="highlighter-rouge">array()</code>
+function:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$array = array(
+  'value1',
+  'value2',
+  'value3',
+);
+</code></pre></div></div>
+
+<p>Or you can use the more succinct syntax if you’re working in PHP 5.4+:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$array = [
+  'value1',
+  'value2',
+  'value3',
+];
+</code></pre></div></div>
+
+<p>The two arrays above are actually creating keys behind the scenes. These keys
+will start at <code class="highlighter-rouge">0</code> and increment by one as each new element is added to the
+array. You can explicitly specify the key for each value if you’d like:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$array = [
+  1 =&gt; 'value1',
+  0 =&gt; 'value2',
+  2 =&gt; 'value3',
+];
+</code></pre></div></div>
+
+<p>Or you can use strings as keys for the array:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$array = [
+  'key1' =&gt; 'value1',
+  'key2' =&gt; 'value2',
+  'key3' =&gt; 'value3',
+];
+</code></pre></div></div>
+
+<p>Once you have data stored in an array, there’s a lot you can do with it, so
+let’s continue on.</p>
+
+<h4 id="debugging-arrays">Debugging arrays</h4>
+
+<p>You might want to debug an array. If you’re <a href="https://www.shiphp.com/blog/2017/php-command-line-script">running a PHP command line
+script</a>,
+then you can create a file like this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+
+<span class="nv">$array</span> <span class="o">=</span> <span class="p">[</span>
+  <span class="s1">'value1'</span><span class="p">,</span>
+  <span class="s1">'value2'</span><span class="p">,</span>
+  <span class="s1">'value3'</span><span class="p">,</span>
+<span class="p">];</span>
+
+<span class="nb">print_r</span><span class="p">(</span><span class="nv">$array</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>When you run it from the terminal command line, you should see something like
+this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Array
+(
+    [0] =&gt; value1
+    [1] =&gt; value2
+    [2] =&gt; value3
+)
+</code></pre></div></div>
+
+<p>You can also print one single value of an array:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$array = [
+  'value1',
+  'value2',
+  'value3',
+];
+
+print_r($array[0]);
+</code></pre></div></div>
+
+<p>Or you can use <code class="highlighter-rouge">var_dump()</code> to output your array with more details:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$array = [
+  'value1',
+  'value2',
+  'value3',
+];
+
+var_dump($array);
+</code></pre></div></div>
+
+<p>Which will generate output like this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/path/to/file/array.php:7:
+array(3) {
+  [0] =&gt;
+  string(6) "value1"
+  [1] =&gt;
+  string(6) "value2"
+  [2] =&gt;
+  string(6) "value3"
+}
+</code></pre></div></div>
+
+<p>Now we can see what our array contains, which is helpful as we start to
+dynamically modify the array.</p>
+
+<h4 id="modifying-arrays">Modifying arrays</h4>
+
+<p>Once you’ve created an array, you may find that you need to update individual
+values or overwrite the whole thing. You can overwrite an entire array in the
+same way it was initially created:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$array = [
+  'value1',
+  'value2',
+];
+$array = [
+  'value3',
+  'value4',
+];
+</code></pre></div></div>
+
+<p>The first value of <code class="highlighter-rouge">$array</code> will be overwritten and the second value will be all
+that remains.</p>
+
+<p>In the real world, it’s probably more useful to add, remove, and update
+individual values within an array. You can “push” a single value onto the end of
+an array like so:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$array[] = 'value3';
+</code></pre></div></div>
+
+<p>Or you can overwrite a single value in an existing array by specifying the key:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$array[0] = 'value4';
+</code></pre></div></div>
+
+<p>Finally, you can completely delete a single key-value pair from an array:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>unset($array[0]);
+</code></pre></div></div>
+
+<h4 id="looping-over-arrays">Looping over arrays</h4>
+
+<p>There are many ways to loop over each key and value in an array, but the
+simplest and most widely useful is probably a <code class="highlighter-rouge">foreach</code> loop:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>foreach($array as $key =&gt; $value) {
+  echo "key: ".$key.PHP_EOL;
+  echo "value: ".$value.PHP_EOL;
+}
+</code></pre></div></div>
+
+<p>This code will output something like:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>key: 0
+value: value1
+key: 1
+value: value2
+key: 2
+value: value3
+</code></pre></div></div>
+
+<p>PHP also includes over 60 <a href="http://php.net/manual/en/ref.array.php">array
+functions</a> that can help you loop over
+and modify arrays in more creative ways, but I’ll save those for another
+article.</p>
+:ET

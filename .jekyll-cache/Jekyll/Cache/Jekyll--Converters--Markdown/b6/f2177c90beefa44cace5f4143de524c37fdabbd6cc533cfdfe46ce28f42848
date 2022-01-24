@@ -1,0 +1,97 @@
+I"F<p><img src="https://i.imgur.com/XjFHZVt.jpg" alt="" /></p>
+
+<p>In order to build a working website on your computer that is powered by PHP,
+you’ll need to first have <a href="http://php.net/manual/en/install.php">PHP installed</a>
+and know some basic HTML. In this tutorial we will make a website that displays
+variables written in PHP code to users in an HTML document. Let’s get started!</p>
+
+<ol>
+  <li>Open a text editor and create a file called <code class="highlighter-rouge">index.html</code></li>
+  <li>Add the following code to your new file:</li>
+</ol>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;!doctype html&gt;</span>
+
+<span class="nt">&lt;html</span> <span class="na">lang=</span><span class="s">"en"</span><span class="nt">&gt;</span>
+<span class="nt">&lt;head&gt;</span>
+  <span class="nt">&lt;meta</span> <span class="na">charset=</span><span class="s">"utf-8"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;title&gt;</span>My PHP Website<span class="nt">&lt;/title&gt;</span>
+<span class="nt">&lt;/head&gt;</span>
+
+<span class="nt">&lt;body&gt;</span>
+  <span class="nt">&lt;h1&gt;</span>My PHP Website<span class="nt">&lt;/h1&gt;</span>
+  <span class="nt">&lt;p&gt;</span>Here is some static content.<span class="nt">&lt;/p&gt;</span>
+<span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span>
+</code></pre></div></div>
+
+<p>This is <a href="https://www.w3schools.com/html/">HTML code</a>, which can be seen in a web
+browser. You can open this file in Google Chrome or Firefox and you should see a
+website like this:</p>
+
+<p><img src="https://i.imgur.com/vFUCCeN.png" alt="" /></p>
+
+<p>It’s not very pretty, but it’s a simple website!</p>
+
+<p>Right now this website is static, meaning that there’s not a server or any PHP
+code powering it. Next, we’ll convert this simple static web page into a dynamic
+one with PHP:</p>
+
+<ol>
+  <li>Rename your <code class="highlighter-rouge">index.html</code> file to <code class="highlighter-rouge">index.php</code></li>
+  <li>Open a command line terminal and navigate to the <code class="highlighter-rouge">index.php</code> file.</li>
+  <li>PHP comes with <a href="http://php.net/manual/en/features.commandline.webserver.php">a built-in web
+server</a>. We’ll use
+this to try out our new webpage by running <code class="highlighter-rouge">php -S localhost:8000</code></li>
+  <li>Now open <code class="highlighter-rouge">http://localhost:8000</code> in your web browser. You should see the same
+thing we saw before with the static HTML page.</li>
+  <li>
+    <p>Open the <code class="highlighter-rouge">index.php</code> file in a text editor. Below the first <code class="highlighter-rouge">&lt;p&gt;</code> tags, create a
+new set of <code class="highlighter-rouge">&lt;p&gt;</code> tags and add the following PHP code:</p>
+
+    <p><?php echo "Here is some dynamic content"; ?></p>
+  </li>
+</ol>
+
+<p>Now when you refresh <code class="highlighter-rouge">http://localhost:8000</code> you will see a new line. This line
+was generated in PHP, and now our site is truly dynamic!</p>
+
+<p><img src="https://i.imgur.com/YGGoDnW.png" alt="" /></p>
+
+<h3 id="references">References</h3>
+
+<h4 id="1-indexhtml">1. index.html</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;!doctype html&gt;</span>
+
+<span class="nt">&lt;html</span> <span class="na">lang=</span><span class="s">"en"</span><span class="nt">&gt;</span>
+<span class="nt">&lt;head&gt;</span>
+  <span class="nt">&lt;meta</span> <span class="na">charset=</span><span class="s">"utf-8"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;title&gt;</span>My PHP Website<span class="nt">&lt;/title&gt;</span>
+<span class="nt">&lt;/head&gt;</span>
+
+<span class="nt">&lt;body&gt;</span>
+  <span class="nt">&lt;h1&gt;</span>My PHP Website<span class="nt">&lt;/h1&gt;</span>
+  <span class="nt">&lt;p&gt;</span>Here is some static content.<span class="nt">&lt;/p&gt;</span>
+<span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span>
+</code></pre></div></div>
+
+<h4 id="2-indexphp">2. index.php</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;!doctype html&gt;</span>
+
+<span class="nt">&lt;html</span> <span class="na">lang=</span><span class="s">"en"</span><span class="nt">&gt;</span>
+<span class="nt">&lt;head&gt;</span>
+  <span class="nt">&lt;meta</span> <span class="na">charset=</span><span class="s">"utf-8"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;title&gt;</span>My PHP Website<span class="nt">&lt;/title&gt;</span>
+<span class="nt">&lt;/head&gt;</span>
+
+<span class="nt">&lt;body&gt;</span>
+  <span class="nt">&lt;h1&gt;</span>My PHP Website<span class="nt">&lt;/h1&gt;</span>
+  <span class="nt">&lt;p&gt;</span>Here is some static content.<span class="nt">&lt;/p&gt;</span>
+  <span class="nt">&lt;p&gt;</span><span class="cp">&lt;?php echo "Here is some dynamic content"; ?&gt;</span><span class="nt">&lt;/p&gt;</span>
+<span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span>
+</code></pre></div></div>
+:ET

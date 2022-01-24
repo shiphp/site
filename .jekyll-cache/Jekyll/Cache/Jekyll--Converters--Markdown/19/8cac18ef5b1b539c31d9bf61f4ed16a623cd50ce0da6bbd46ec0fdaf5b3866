@@ -1,0 +1,150 @@
+I"-<p><img src="https://i.imgur.com/EDfJTNf.jpg" alt="" /></p>
+
+<p>Object oriented languages like PHP have many tools for layering objects. Among
+PHP’s tools are interfaces and abstract classes which can be used in similar
+ways. I think many new developers tend to get confused and misuse them, so I’m
+hoping a little tutorial here will help.</p>
+
+<h3 id="what-is-an-interface">What is an Interface?</h3>
+
+<p>An <a href="http://php.net/manual/en/language.oop5.interfaces.php'">object interface in
+PHP</a> is like a class
+template. It instructs any class which implements it what methods need to be
+present and what parameters they should use. In practice, this is can be useful
+for guiding developers who want to build a wrapper for your internal system, but
+interfaces are also a <a href="http://php-di.org/doc/best-practices.html">common part of dependency injection
+libraries</a>.</p>
+
+<h4 id="using-an-interface">Using an Interface</h4>
+
+<p>I won’t cover dependency injection here, but let’s take a look at an interface
+in PHP and how we might use it. Note that I’m running PHP 7.1 and <a href="https://stackoverflow.com/a/29967975/977192">using strict
+types</a>, but this example will work
+without it.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span> <span class="k">declare</span><span class="p">(</span><span class="n">strict_types</span><span class="o">=</span><span class="mi">1</span><span class="p">);</span>
+<span class="kd">interface</span> <span class="nc">AnimalInterface</span> <span class="p">{</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="n">canMakeNoise</span><span class="p">():</span> <span class="kt">bool</span><span class="p">;</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="n">getNoise</span><span class="p">(</span><span class="nv">$level</span> <span class="o">=</span> <span class="s2">"low"</span><span class="p">):</span> <span class="kt">string</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="kd">class</span> <span class="nc">Pig</span> <span class="kd">implements</span> <span class="nc">AnimalInterface</span> <span class="p">{</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="n">canMakeNoise</span><span class="p">():</span> <span class="kt">bool</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="n">getNoise</span><span class="p">(</span><span class="nv">$level</span> <span class="o">=</span> <span class="s2">"low"</span><span class="p">):</span> <span class="kt">string</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nv">$level</span><span class="mf">.</span><span class="s2">" oink"</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="nv">$pig</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Pig</span><span class="p">();</span>
+<span class="k">echo</span> <span class="nv">$pig</span><span class="o">-&gt;</span><span class="nf">getNoise</span><span class="p">(</span><span class="s2">"medium"</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>When we run the above script, the terminal will output <code class="highlighter-rouge">medium oink</code> as the
+sound the pig made. This example is trivial because we just have one type of
+animal, but if we think about it as a template for any future developers to
+create new kinds of animals it starts to gain some usefulness.</p>
+
+<p>For example, what would happen if I tried to create a new animal but didn’t add
+the methods required in the <code class="highlighter-rouge">AnimalInterface</code>?</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span> <span class="k">declare</span><span class="p">(</span><span class="n">strict_types</span><span class="o">=</span><span class="mi">1</span><span class="p">);</span>
+<span class="kd">interface</span> <span class="nc">AnimalInterface</span> <span class="p">{</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="n">canMakeNoise</span><span class="p">():</span> <span class="kt">bool</span><span class="p">;</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="n">getNoise</span><span class="p">(</span><span class="nv">$level</span> <span class="o">=</span> <span class="s2">"low"</span><span class="p">):</span> <span class="kt">string</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="kd">class</span> <span class="nc">Monkey</span> <span class="kd">implements</span> <span class="nc">AnimalInterface</span> <span class="p">{</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="n">getNoise</span><span class="p">(</span><span class="nv">$level</span> <span class="o">=</span> <span class="s2">"low"</span><span class="p">):</span> <span class="kt">string</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nv">$level</span><span class="mf">.</span><span class="s2">" hoo hoo"</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="nv">$monkey</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Monkey</span><span class="p">();</span>
+<span class="k">echo</span> <span class="nv">$monkey</span><span class="o">-&gt;</span><span class="nf">getNoise</span><span class="p">(</span><span class="s2">"high"</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>PHP will throw a fatal error:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Fatal error: Class Monkey contains 1 abstract method and must therefore be declared abstract or implement the remaining methods (AnimalInterface::canMakeNoise)
+</code></pre></div></div>
+
+<p>While you don’t have to create an interface for every class you may want to
+consider it if you’re going to be passing your code around to other developers
+who will build similar classes.</p>
+
+<h3 id="what-are-abstract-classes-and-methods">What are Abstract Classes and Methods?</h3>
+
+<p><strong>Abstract classes</strong> are classes that cannot be instantiated directly, but must
+be extended in order to have any practical use.</p>
+
+<p><strong>Abstract methods</strong> are methods that must be defined in any class that extends
+this one. Much like an interface’s methods, PHP will throw an error if an
+extending class doesn’t implement an abstract method.</p>
+
+<h4 id="using-an-abstract-class">Using an Abstract Class</h4>
+
+<p>Abstract classes are nice because they can include functionality (fully
+implemented methods) and abstract methods. When you want all classes that extend
+the abstract class to perform some methods the same, but you also want some
+methods to be defined by the child class, you may want to use an abstract class.
+Let’s look at an example:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span> <span class="k">declare</span><span class="p">(</span><span class="n">strict_types</span><span class="o">=</span><span class="mi">1</span><span class="p">);</span>
+<span class="k">abstract</span> <span class="kd">class</span> <span class="nc">BaseAnimal</span> <span class="p">{</span>
+    <span class="k">abstract</span> <span class="k">public</span> <span class="k">function</span> <span class="n">canRun</span><span class="p">():</span> <span class="kt">bool</span><span class="p">;</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="n">isAnimal</span><span class="p">():</span> <span class="kt">bool</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="kd">class</span> <span class="nc">Horse</span> <span class="kd">extends</span> <span class="nc">BaseAnimal</span> <span class="p">{</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="n">canRun</span><span class="p">():</span> <span class="kt">bool</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="nv">$horse</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Horse</span><span class="p">();</span>
+<span class="k">if</span><span class="p">(</span><span class="nv">$horse</span><span class="o">-&gt;</span><span class="nf">canRun</span><span class="p">()</span> <span class="o">&amp;&amp;</span> <span class="nv">$horse</span><span class="o">-&gt;</span><span class="nf">isAnimal</span><span class="p">())</span> <span class="p">{</span>
+    <span class="k">echo</span> <span class="s2">"Horses are animals that can run."</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>In this case, the command line should show <code class="highlighter-rouge">Horses are animals that can run.</code>
+because the <code class="highlighter-rouge">Horse</code> class inherits the <code class="highlighter-rouge">isAnimal</code> method from the <code class="highlighter-rouge">BaseAnimal</code>
+class and it implements its own <code class="highlighter-rouge">canRun</code> method. This allows us to create
+animals in the future which cannot run, but are still seen as animals by anyone
+who calls the <code class="highlighter-rouge">isAnimal</code> method.</p>
+
+<h3 id="whats-the-difference">What’s the Difference?</h3>
+
+<p>The million dollar question is “What is the difference between an interface and
+an abstract class in PHP?” As you can see above, both can be used to instruct
+classes to implement certain methods, but they are not wholly interchangeable.
+Here’s a good overview from <a href="http://php.net/manual/en/language.oop5.abstract.php#82111">PHP’s official
+documentation</a>:</p>
+
+<blockquote>
+  <p>An Interface is like a protocol. It doesn’t designate the behavior of the
+object; it designates how your code tells that object to act. An interface would
+be like the English Language: defining an interface defines how your code
+communicates with any object implementing that interface.</p>
+</blockquote>
+
+<blockquote>
+  <p>An interface is always an agreement or a promise. When a class says “I implement
+interface Y”, it is saying “I promise to have the same public methods that any
+object with interface Y has”.</p>
+</blockquote>
+
+<blockquote>
+  <p>On the other hand, an Abstract Class is like a partially built class. It is much
+like a document with blanks to fill in. It might be using English, but that
+isn’t as important as the fact that some of the document is already written.</p>
+</blockquote>
+
+<blockquote>
+  <p>An abstract class is the foundation for another object. When a class says “I
+extend abstract class Y”, it is saying “I use some methods or properties already
+defined in this other class named Y”.</p>
+</blockquote>
+
+<p>I think it’s helpful to dig into code and see abstract classes and interfaces in
+action, so search around on Github. Lots of libraries and frameworks use these
+two concepts.</p>
+:ET

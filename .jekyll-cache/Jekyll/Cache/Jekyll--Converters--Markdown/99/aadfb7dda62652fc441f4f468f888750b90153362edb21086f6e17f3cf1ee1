@@ -1,0 +1,424 @@
+I"G<p>Last year I started logging slow requests using PHP-FPM’s <a href="https://easyengine.io/tutorials/php/fpm-slow-log">slow request log</a>. This tool provides a very helpful, high level view of which requests to your website are not performing well, and it can help you find bugs, memory leaks, and optimizations for your database queries.</p>
+
+<p>After a few weeks, I noticed that two requests were especially slow - consistently taking 3-5 seconds per request. While this request was not very common (and only used by internal company employees), it still indicated an area for improvement in our codebase.</p>
+
+<h2 id="the-root-problem">The Root Problem</h2>
+
+<p>In order to track down why the request was slow, I installed <a href="https://www.datadoghq.com/">Datadog</a>, which offers more detailed, query-level data on how requests are performing. This was hugely valuable for tracking down the root of the problem.</p>
+
+<p>After watching queries for about a week, two database queries topped my list for the slowest in our system:</p>
+
+<p><img src="https://i.imgur.com/RfKMaL4.png" alt="Our slowest database queries were to two related MySQL views" /></p>
+
+<p>Both of these <code class="highlighter-rouge">select</code> statements are querying two related MySQL views. The <code class="highlighter-rouge">school_summaries</code> view uses the <code class="highlighter-rouge">teacher_summaries</code> view to show internal team members how many assignments teachers at each school have posted, how many they’ve reviewed, and a bunch of other disparate information.</p>
+
+<h2 id="why-use-views">Why Use Views?</h2>
+
+<p>Let’s back up because a lot of people argue that <a href="https://www.percona.com/blog/2007/08/12/mysql-view-as-performance-troublemaker/">MySQL Views shouldn’t be used due to performance issues</a>. This is naive; like any tool in a programmer’s toolbelt, views have a place, but must be used with knowledge of the tradeoffs.</p>
+
+<p>Our application (<a href="https://www.thegraidenetwork.com/">The Graide Network</a>) is a grading platform where we grade essays for teachers. We have several database tables that contain information about how teachers use our platform, and we must check this usage from time to time to generate reports for school leaders who pay for our services.</p>
+
+<p>Some of the information we track about teachers includes:</p>
+
+<ul>
+  <li>Email</li>
+  <li>School name</li>
+  <li>Last login date</li>
+  <li>Number of assignments posted</li>
+  <li>Number of assignments reviewed</li>
+  <li>Number of assignments the teacher has requested a revision for</li>
+  <li>Number of assignments completed</li>
+  <li>Number of hours used (schools typically pay for packages of “hours”)</li>
+  <li>Most recent assignment posted date</li>
+  <li>Reviews they’ve given us</li>
+</ul>
+
+<p>As you can imagine, this data is stored in various tables throughout our database, so in order to query it, we would need to join lots of data in a single large query. This query ends up looking like this:</p>
+
+<pre><code class="language-mysql">select
+  users.ID as teacher_id,
+  users.email,
+  users.first_name,
+  users.last_name,
+  users.school,
+  users.login_on,
+  users.created_on,
+  t1.teacher_revision_request_count,
+  t2.admin_revision_request_count,
+  t3.section_assignments_awaiting_review,
+  transaction_complete.total as total_assignments_complete,
+  transaction_started.total as total_assignments_posted,
+  transaction_complete.section_count as total_section_assignments_complete,
+  transaction_started.section_count as total_section_assignments_posted,
+  transaction_started.hours_used as total_hours_used,
+  transaction_started.most_recent as most_recent_assignment_posted_date,
+  avg(NULLIF(reviews.accuracy, 0)) as average_accuracy_review_given,
+  avg(NULLIF(reviews.quality, 0)) as average_quality_review_given
+from users
+left join (
+    select *
+    from graider_reviews
+    WHERE (
+        (MONTH(CURDATE()) &lt;= 7 AND created_at &gt;= DATE_SUB(DATE_FORMAT(CURDATE(), '%Y-07-01'), INTERVAL 1 YEAR))
+        OR
+        (MONTH(CURDATE()) &gt; 7 AND created_at &gt;= DATE_FORMAT(CURDATE(), '%Y-07-01'))
+    )
+) as reviews on users.ID = reviews.teacher_id
+left join (
+    select
+      sum(transactions.hours) as hours_used,
+      max(transactions.created_at) as most_recent,
+      count(transactions.id) as total,
+      sum(transactions.number_of_sections) as section_count,
+      teacher_id
+    from transactions
+    where type LIKE 'DEBIT'
+    group by teacher_id
+) as transaction_started on users.ID = transaction_started.teacher_id
+left join (
+    select
+      count(transactions.id) as total,
+      sum(transactions.number_of_sections) as section_count,
+      teacher_id
+    from transactions
+    where (type LIKE 'DEBIT')
+    group by teacher_id
+) as transaction_complete on users.ID = transaction_complete.teacher_id
+left join (
+  select a.teacher_id, count(sa.id) as teacher_revision_request_count from section_assignments as sa
+  join assignments a on sa.assignment_id = a.id
+  where sa.teacher_revision_requested_at is not null
+  and sa.deleted_at is null
+  group by a.teacher_id
+ ) t1 on users.ID = t1.teacher_id
+left join (
+  select a.teacher_id, count(sa.id) as admin_revision_request_count from section_assignments as sa
+  join assignments a on sa.assignment_id = a.id
+  where sa.admin_revision_requested_at is not null
+  and sa.deleted_at is null
+  group by a.teacher_id
+) t2 on users.ID = t2.teacher_id
+left join (
+  select a.teacher_id, count(sa.id) as section_assignments_awaiting_review from section_assignments as sa
+  join assignments a on sa.assignment_id = a.id
+  where sa.status = 'Awaiting Review'
+  and sa.deleted_at is null
+  group by a.teacher_id
+) t3 on users.ID = t3.teacher_id
+where users.type = 't'
+and users.school is not null
+group by teacher_id, email, first_name, last_name, school, login_on, created_on,
+         total_assignments_complete, total_assignments_posted,
+         total_section_assignments_complete, total_section_assignments_posted,
+         total_hours_used, most_recent_assignment_posted_date;
+</code></pre>
+
+<p>I realize there is a lot to unpack in that query, but that’s sort of the point. Making this query, modifying, and improving it would be darn near impossible using our ORM (we use <a href="https://laravel.com/docs/master/eloquent">Laravel’s Eloquent</a>), and if we wrote a raw query, it would be really hard to add new <code class="highlighter-rouge">where</code>, <code class="highlighter-rouge">order by</code>, or <code class="highlighter-rouge">limit</code> clauses as we’d have to insert them manually.</p>
+
+<p>Creating a MySQL view gives you the best of both worlds though. Once it’s set up, you can <a href="https://stitcher.io/blog/eloquent-mysql-views">wrap it in a Laravel model</a> and query it using the Eloquent ORM. This means that I can write simple code to query that huge, ugly mess of SQL above:</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+<span class="c1">// Get the first 10 teachers at "A High School"</span>
+<span class="nc">TeacherSummary</span><span class="o">::</span><span class="nf">where</span><span class="p">(</span><span class="s1">'school'</span><span class="p">,</span> <span class="s1">'A High School'</span><span class="p">)</span><span class="o">-&gt;</span><span class="nf">skip</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">-&gt;</span><span class="nf">take</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">-&gt;</span><span class="nf">get</span><span class="p">();</span>
+</code></pre></div></div>
+
+<h2 id="benchmarking-the-view">Benchmarking the View</h2>
+
+<p>I really like this pattern, but as you can imagine it comes with some tradeoffs. The biggest is that performance is opaque. It’s really hard to debug what’s slow in a view because the whole thing ends up as a single query. To get a high level benchmark for how the query was performing, I just ran a query to the view from an SSH connection:</p>
+
+<pre><code class="language-mysql">select * from teacher_sumaries;
+</code></pre>
+
+<p>My IDE told me execution took 1.184 seconds. For comparison, making the same <code class="highlighter-rouge">select *</code> statement from our <code class="highlighter-rouge">users</code> table took 0.236 seconds. This table and view are on the same order of magnitude from a size perspective, so ideally they would run at similar speeds.</p>
+
+<h2 id="breaking-down-the-slow-parts-of-the-view">Breaking Down the Slow Parts of the View</h2>
+
+<p>Because MySQL views are just a shortcut to the underlying query, I decided to start by running an <a href="https://dev.mysql.com/doc/refman/8.0/en/explain-output.html"><code class="highlighter-rouge">explain</code></a> on the <code class="highlighter-rouge">select * from teacher_summaries;</code> query. This gave me the following output:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>id</th>
+      <th>rows</th>
+      <th>filtered</th>
+      <th>Extra</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>61833440359</td>
+      <td>100</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>1117</td>
+      <td>17.44</td>
+      <td>Using where; Using temporary; Using filesort</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>4330</td>
+      <td>100</td>
+      <td>Using where; Using join buffer (Block Nested Loop)</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>10</td>
+      <td>100</td>
+      <td>Using where</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>10</td>
+      <td>100</td>
+      <td>Using where</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>10</td>
+      <td>100</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>10</td>
+      <td>100</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>7</td>
+      <td>100</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>721</td>
+      <td>10</td>
+      <td>Using where; Using temporary; Using filesort</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>1</td>
+      <td>100</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>5481</td>
+      <td>9</td>
+      <td>Using where; Using temporary; Using filesort</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>1</td>
+      <td>100</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>5481</td>
+      <td>9</td>
+      <td>Using where; Using temporary; Using filesort</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>1</td>
+      <td>100</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>2074</td>
+      <td>51.74</td>
+      <td>Using where</td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td>2074</td>
+      <td>51.74</td>
+      <td>Using where</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>I like <code class="highlighter-rouge">explain</code>, but this was too much. I see there’s a problem in the first row of output (MySQL is scanning 61,833,440,359 rows just to execute a <code class="highlighter-rouge">select *</code>!), but I have no idea which row corresponds to which part of the query.</p>
+
+<p>So, I started breaking down the query into smaller bits. I took the <code class="highlighter-rouge">select</code> statement for each <code class="highlighter-rouge">join</code>’s subquery and ran an <code class="highlighter-rouge">explain</code> on it. For example, this subquery’s <code class="highlighter-rouge">explain</code>:</p>
+
+<pre><code class="language-mysql">explain select a.teacher_id, count(sa.id) as teacher_revision_request_count from section_assignments as sa
+  join assignments a on sa.assignment_id = a.id
+  where sa.teacher_revision_requested_at is not null
+  and sa.deleted_at is null
+  group by a.teacher_id;
+</code></pre>
+
+<p>Netted this result:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>id</th>
+      <th>rows</th>
+      <th>filtered</th>
+      <th>Extra</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>5481</td>
+      <td>9</td>
+      <td>Using where; Using temporary; Using filesort</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>1</td>
+      <td>100</td>
+      <td> </td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Now I’m getting somewhere! This output tells me that the query must go through 5481 rows of the <code class="highlighter-rouge">section_assignments</code> table in order to execute. That’s almost all the rows in the table!</p>
+
+<p>If this subquery were the only thing running, performance wouldn’t be that bad - MySQL can query ~6k rows quickly with ease - but problematic subquery multiplies the number of rows that must be loaded, which is why the view was loading so many rows.</p>
+
+<h2 id="improving-the-view">Improving the View</h2>
+
+<p>I continued this process with each subquery to figure out which ones were loading thousands of rows. I wasn’t looking to make this view execute as fast as humanly possible - it’s still a very infrequently accessed query - but I did want to take execution time down by an order of magnitude.</p>
+
+<p>I looked at the indexes in the <code class="highlighter-rouge">section_assignments</code> table and realized I had overlooked indexing the <code class="highlighter-rouge">teacher_revision_requested_at</code>, <code class="highlighter-rouge">admin_revision_requested_at</code>, and <code class="highlighter-rouge">deleted_at</code> columns. As a general rule of thumb, I index date columns as they’re often used in queries, but when these columns were created our database was small and we were moving fast, so I missed them. I had similarly missed indexing the <code class="highlighter-rouge">graider_reviews.teacher_id</code> column, so the <code class="highlighter-rouge">join</code> was scanning all rows in that table as well.</p>
+
+<p>Another part of the query that was especially problematic was the subquery that joins in <code class="highlighter-rouge">DEBIT</code> transactions:</p>
+
+<pre><code class="language-mysql">select
+  count(transactions.id) as total,
+  sum(transactions.number_of_sections) as section_count,
+  teacher_id
+from transactions
+where (type like 'DEBIT')
+group by teacher_id;
+</code></pre>
+
+<p>The indexes were good (<code class="highlighter-rouge">teacher_id</code> and <code class="highlighter-rouge">type</code> were both being indexed), but <a href="https://stackoverflow.com/questions/6142235/sql-like-vs-performance">changing <code class="highlighter-rouge">like</code> to <code class="highlighter-rouge">=</code></a> I doubled the performance (halved the number of rows scanned) for this subquery.</p>
+
+<p>I created a temporary duplicate of our production database, tested out my new indexes, and measured their results to see how these improvements affected performance overall.</p>
+
+<h2 id="final-results">Final Results</h2>
+
+<p>After pushing my new indexes to production, I saw a huge improvement in performance. First, by running the <code class="highlighter-rouge">explain select * from teacher_summaries;</code>, I saw that <em>only</em> 215 million rows were being scanned. This isn’t great, but compared with 62 billion before, the effect was noticeable. Here are the full results:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>id</th>
+      <th>rows</th>
+      <th>filtered</th>
+      <th>Extra</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>215652711</td>
+      <td>100</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>1117</td>
+      <td>14.99</td>
+      <td>Using where; Using temporary; Using filesort</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>11</td>
+      <td>100</td>
+      <td>Using where</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>10</td>
+      <td>100</td>
+      <td>Using where</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>10</td>
+      <td>100</td>
+      <td>Using where</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>10</td>
+      <td>100</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>10</td>
+      <td>100</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>10</td>
+      <td>100</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>865</td>
+      <td>85.28</td>
+      <td>Using where; Using temporary; Using filesort</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>1</td>
+      <td>100</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>394</td>
+      <td>85.28</td>
+      <td>Using index condition; Using where; Using temporary; Using filesort</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>1</td>
+      <td>100</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>183</td>
+      <td>85.28</td>
+      <td>Using index condition; Using where; Using temporary; Using filesort</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>1</td>
+      <td>100</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>1105</td>
+      <td>100</td>
+      <td>Using index condition; Using temporary; Using filesort</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>You can also see that several parts of the query that were previously scanning ~5k rows are now down to around 1k rows. This is the primary performance improvement for this query.</p>
+
+<p>Ultimately, rows scanned doesn’t matter that much to me though (I’m on managed database hosting and hardware is cheap). What matters is speed for users, and that improved most dramatically. Before the indexes, it took about 1.2 seconds, and now it was taking 0.3 seconds to perform the <code class="highlighter-rouge">select *</code> query on the view.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>While there is definitely more I could do to improve performance of this view, I’m okay with the gains I’ve made with these simple fixes. Software engineering is a constant balance of performance vs. pragmatism, and at our scale, we have to understand that. I’d welcome other suggestions for improving the performance of MySQL views, so <a href="https://www.twitter.com/shiphpnow">reach out to me on Twitter</a> if you have your own story to add.</p>
+:ET

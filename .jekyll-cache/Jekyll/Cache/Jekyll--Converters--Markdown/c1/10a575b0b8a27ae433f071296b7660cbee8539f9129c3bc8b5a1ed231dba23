@@ -1,0 +1,2 @@
+I"�<p>About a year ago, I spent some time working with an open source project called <a href="https://github.com/mevdschee/php-crud-api">PHP Crud API</a>. The project creates a RESTful API from a relational database using a single PHP script. It’s quite an impressive feat of engineering, but as I started working on the project, I realized I needed a reliable way to test my changes in different versions of PHP. That’s where Docker comes in.</p>
+:ET

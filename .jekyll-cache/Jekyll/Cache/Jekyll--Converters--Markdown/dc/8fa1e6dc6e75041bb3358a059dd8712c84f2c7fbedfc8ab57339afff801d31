@@ -1,0 +1,106 @@
+I"�"<p>About a year ago, I spent some time working with an open source project called <a href="https://github.com/mevdschee/php-crud-api">PHP Crud API</a>. The project creates a RESTful API from a relational database using a single PHP script. It’s quite an impressive feat of engineering, but as I started working on the project, I realized I needed a reliable way to test my changes in different versions of PHP. That’s where Docker comes in.</p>
+
+<p>One of the biggest perks to using Docker is the ability to quickly switch between different versions of PHP. In order to demonstrate this feature, I’ve set up an example repository <a href="https://github.com/karllhughes/docker-testing-examples/tree/master/ex-1">here</a>, but let’s walk through how we might test a function in PHP 5.6 and PHP 7.2 with Docker.</p>
+
+<p><img src="https://i.imgur.com/U6fSWpz.jpg" alt="" /></p>
+
+<h2 id="the-code">The Code</h2>
+
+<p>Create a file called <code class="highlighter-rouge">index.php</code> and add a function called <code class="highlighter-rouge">sortArrayOfObjects</code>:</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+
+<span class="cd">/**
+ * Function to be tested
+ *
+ * Includes a number of features that require PHP 7.0+, including:
+ * - Scalar type hints
+ * - Return types
+ * - The "spaceship" operator
+ *
+ */</span>
+<span class="k">function</span> <span class="n">sortArrayOfObjects</span><span class="p">(</span><span class="kt">string</span> <span class="nv">$field</span><span class="p">,</span> <span class="kt">array</span> <span class="nv">$objects</span><span class="p">):</span> <span class="kt">array</span>
+<span class="p">{</span>
+    <span class="nb">usort</span><span class="p">(</span><span class="nv">$objects</span><span class="p">,</span> <span class="k">function</span> <span class="p">(</span><span class="nv">$a</span><span class="p">,</span> <span class="nv">$b</span><span class="p">)</span> <span class="k">use</span> <span class="p">(</span><span class="nv">$field</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nv">$a</span><span class="o">-&gt;</span><span class="p">{</span><span class="nv">$field</span><span class="p">}</span> <span class="o">&lt;=&gt;</span> <span class="nv">$b</span><span class="o">-&gt;</span><span class="p">{</span><span class="nv">$field</span><span class="p">};</span>
+    <span class="p">});</span>
+    <span class="k">return</span> <span class="nv">$objects</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>This function will take an <a href="https://www.shiphp.com/blog/2017/php-arrays">array</a> of objects and sort them by a field you choose. It uses several features only available in PHP 7.0 including <a href="https://www.shiphp.com/blog/2017/type-hinting-return-types">scalar type hints</a>, <a href="https://www.shiphp.com/blog/2017/type-hinting-return-types">return types</a>, and <a href="https://wiki.php.net/rfc/combined-comparison-operator">the “spaceship” operator</a>.</p>
+
+<h2 id="the-test">The Test</h2>
+
+<p>Now, in order to test it, just add the following code to the bottom of the <code class="highlighter-rouge">index.php</code> file:</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+
+<span class="cd">/**
+ * PHPUnit test code
+ *
+ * Normally this would be in another file, but we're keeping it simple.
+ * This test simply verifies that the sorting works, but will throw
+ * a syntax error in PHP &lt; 7.0.
+ */</span>
+<span class="kn">use</span> <span class="nc">PHPUnit\Framework\TestCase</span><span class="p">;</span>
+
+<span class="kd">class</span> <span class="nc">SortArrayOfObjectsTest</span> <span class="kd">extends</span> <span class="nc">TestCase</span>
+<span class="p">{</span>
+    <span class="k">function</span> <span class="n">testItSortsWhenFieldExists</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="nv">$objects</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="n">object</span><span class="p">)</span> <span class="p">[</span>
+                <span class="s1">'sort_order'</span> <span class="o">=&gt;</span> <span class="s1">'2'</span><span class="p">,</span>
+                <span class="s1">'name'</span> <span class="o">=&gt;</span> <span class="s1">'The first shall be last'</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="p">(</span><span class="n">object</span><span class="p">)</span> <span class="p">[</span>
+                <span class="s1">'sort_order'</span> <span class="o">=&gt;</span> <span class="s1">'1'</span><span class="p">,</span>
+                <span class="s1">'name'</span> <span class="o">=&gt;</span> <span class="s1">'The last shall be first'</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">];</span>
+        <span class="nv">$result</span> <span class="o">=</span> <span class="nf">sortArrayOfObjects</span><span class="p">(</span><span class="s1">'sort_order'</span><span class="p">,</span> <span class="nv">$objects</span><span class="p">);</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="nf">assertEquals</span><span class="p">(</span><span class="nv">$objects</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nv">$result</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="nf">assertEquals</span><span class="p">(</span><span class="nv">$objects</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="nv">$result</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="installing-dependencies">Installing Dependencies</h2>
+
+<p>Next, add a <code class="highlighter-rouge">composer.json</code> file to the root of your project:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"require-dev"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"phpunit/phpunit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^5"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>And install the dependencies using <a href="https://www.shiphp.com/blog/2017/composer-php-docker">Docker and Composer</a>:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run <span class="nt">--rm</span> <span class="nt">-v</span> <span class="si">$(</span><span class="nb">pwd</span><span class="si">)</span>:/app <span class="nt">-w</span> /app composer <span class="nb">install</span>
+</code></pre></div></div>
+
+<h2 id="running-the-test">Running the Test</h2>
+
+<p>Now you can run your test file in PHP 7.2 to confirm that it works:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run <span class="nt">--rm</span> <span class="nt">-v</span> <span class="si">$(</span><span class="nb">pwd</span><span class="si">)</span>:/app <span class="nt">-w</span> /app php:7.2 vendor/bin/phpunit index.php
+
+<span class="o">&gt;</span> PHPUnit 5.7.27 by Sebastian Bergmann and contributors.
+<span class="o">&gt;</span> ...
+<span class="o">&gt;</span> OK <span class="o">(</span>1 <span class="nb">test</span>, 2 assertions<span class="o">)</span>
+</code></pre></div></div>
+
+<p>Or you can run it in PHP 5.6 to confirm that older versions of PHP won’t work:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run <span class="nt">--rm</span> <span class="nt">-v</span> <span class="si">$(</span><span class="nb">pwd</span><span class="si">)</span>:/app <span class="nt">-w</span> /app php:5.6 vendor/bin/phpunit index.php
+
+<span class="o">&gt;</span> Parse error: syntax error, unexpected <span class="s1">':'</span>, expecting <span class="s1">'{'</span> <span class="k">in</span> /app/index.php on line 12
+</code></pre></div></div>
+
+<p>Using this method, you can quickly test any application or library in different versions of PHP without installing them locally or setting up a virtual machine.</p>
+
+<p>What tips do you have for testing PHP applications with Docker? <a href="https://twitter.com/shiphpnow">Let me hear your thoughts on Twitter</a>.</p>
+:ET

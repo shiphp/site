@@ -1,0 +1,30 @@
+I"6<p>If you’ve been <a href="https://www.shiphp.com/blog/2017/phpunit-docker">writing PHPUnit tests</a> for long, you’ve probably run into a time when a test works 90% of the time, but every now and then it throws an unexpected error or failure. If it happens only rarely, you might just get around it by re-running your test suite, but if you’ve got a large test suite or intermittent failures become really common, you probably need to address the issue. Here’s a quick tip for debugging tests like this.</p>
+
+<p><img src="https://i.imgur.com/5eAdEZ9.jpg" alt="" /></p>
+
+<p>If you want to run your PHPUnit tests until they fail, type this into your command line and hit <code class="highlighter-rouge">enter</code>:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">while</span> <span class="o">(</span>phpunit<span class="o">)</span><span class="p">;</span> <span class="k">do</span> :<span class="p">;</span> <span class="k">done</span>
+</code></pre></div></div>
+
+<p>This simple bash script uses a <a href="http://tldp.org/LDP/Bash-Beginners-Guide/html/sect_09_02.html">while loop</a> to run the command within parentheses over and over again until it receives an error or failure response. You can add any PHPUnit flags you want to the command:</p>
+
+<h4 id="run-only-one-test-until-it-fails">Run only one test until it fails</h4>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">while</span> <span class="o">(</span>phpunit <span class="nt">--filter</span> thatOnePeskyFailingTest<span class="o">)</span><span class="p">;</span> <span class="k">do</span> :<span class="p">;</span> <span class="k">done</span>
+</code></pre></div></div>
+
+<h4 id="run-one-test-suite-until-it-fails">Run one test suite until it fails</h4>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">while</span> <span class="o">(</span>phpunit <span class="nt">--testsuite</span> suiteName<span class="o">)</span><span class="p">;</span> <span class="k">do</span> :<span class="p">;</span> <span class="k">done</span>
+</code></pre></div></div>
+
+<p>Your bash script can be more complicated than one command. You could use a <code class="highlighter-rouge">&amp;&amp;</code> to chain two commands together. For example, I wanted to delete the contents of my Laravel application’s log file and then run the acceptance tests in my app until they failed:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">while</span> <span class="o">(&gt;</span> storage/logs/laravel.log <span class="o">&amp;&amp;</span> phpunit <span class="nt">--testsuite</span> acceptance<span class="o">)</span><span class="p">;</span> <span class="k">do</span> :<span class="p">;</span> <span class="k">done</span>
+</code></pre></div></div>
+
+<p>Each time, the script cleared out my logs before running the test, which allowed me to use the logs to debug the issue.</p>
+
+<p>If you ever want to break out of a never-ending test loop, just hold <code class="highlighter-rouge">control</code> and press <code class="highlighter-rouge">c</code> (on Mac).</p>
+
+<p>Bash scripting isn’t something I choose to do often, but at times it’s the best tool for the job. If you are interested in more posts about testing, read my other post on <a href="https://www.shiphp.com/blog/2018/testing-multiple-versions-of-php">testing with multiple versions of PHP</a> or <a href="https://twitter.com/shiphpnow">follow me on Twitter</a>.</p>
+:ET

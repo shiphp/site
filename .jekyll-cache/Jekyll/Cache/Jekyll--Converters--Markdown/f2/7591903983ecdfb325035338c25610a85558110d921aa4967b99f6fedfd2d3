@@ -1,0 +1,422 @@
+I":<p><img src="https://i.imgur.com/8rMuRoT.jpg" alt="" /></p>
+
+<p>Arrays are an important and widely used type in PHP. They are essentially
+ordered maps that allow developers quick access to key-value storage in their
+applications. For some basic array examples, <a href="https://www.shiphp.com/blog/2017/php-arrays">see my previous post of working
+with arrays in PHP</a>.</p>
+
+<p>PHP has <a href="http://php.net/manual/en/ref.array.php">over 75 array functions</a> to
+help you manipulate and use arrays more efficiently. Since that’s a bit
+overwhelming, I’m just going to go over a few of the more common ones.</p>
+
+<h3 id="1-array_diff">1. array_diff</h3>
+
+<p>If you have two arrays and you want to find values that are in the first, but
+not the second, <code class="highlighter-rouge">array_diff</code> is probably your best bet. It will compare two or
+more arrays and return all the values in the first array that are not in the
+other arrays.</p>
+
+<h4 id="code">Code</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$array1 = ['red', 'blue', 'green'];
+$array2 = ['red', 'brown', 'green'];
+print_r(array_diff($array1, $array2));
+</code></pre></div></div>
+
+<h4 id="output">Output</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Array
+(
+    [1] =&gt; blue
+)
+</code></pre></div></div>
+
+<p><em>Note: You can similarly compare array keys with <code class="highlighter-rouge">array_diff_key</code>.</em></p>
+
+<h3 id="2-array_filter">2. array_filter</h3>
+
+<p>When you want to remove certain values from an array <code class="highlighter-rouge">array_filter</code> is usually a
+good option. It allows you to pass a callback function that filters items from
+an array.</p>
+
+<h4 id="code-1">Code</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$array = [1, 100, 102, 103];
+// Filters out array values &lt; 100
+$filteredArray = array_filter($array, function ($value) {
+    return $value &gt;= 100;
+});
+print_r($filteredArray);
+</code></pre></div></div>
+
+<h4 id="output-1">Output</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Array
+(
+    [1] =&gt; 100
+    [2] =&gt; 102
+    [3] =&gt; 103
+)
+</code></pre></div></div>
+
+<p><em>Note: You can also filter using keys with <code class="highlighter-rouge">array_filter</code>. Be sure to check
+out the official documentation for <a href="http://php.net/manual/en/function.array-filter.php">more detailed
+examples</a>.</em></p>
+
+<h3 id="3-array_intersect">3. array_intersect</h3>
+
+<p>If you need to know which values are contained in all of two or more arrays you
+can use <code class="highlighter-rouge">array_intersect</code>.</p>
+
+<h4 id="code-2">Code</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$array1 = ['red', 'blue', 'green'];
+$array2 = ['red', 'brown', 'green'];
+print_r(array_intersect($array1, $array2));
+</code></pre></div></div>
+
+<h4 id="output-2">Output</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Array
+(
+    [0] =&gt; red
+    [2] =&gt; green
+)
+</code></pre></div></div>
+
+<p><em>Note: <code class="highlighter-rouge">array_intersect</code> ignores the keys in your compared arrays, but
+<code class="highlighter-rouge">array_intersect_assoc</code> does not.</em></p>
+
+<h3 id="4-array_keys">4. array_keys</h3>
+
+<p>Sometimes you just need keys from your array, and <code class="highlighter-rouge">array_keys</code> can be very
+useful for this. It also provides an optional second parameter to search the
+array values and only return keys of matched elements.</p>
+
+<h4 id="code-3">Code</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$array = ['a' =&gt; 'red', 'b' =&gt; 'blue', 'c' =&gt; 'green'];
+print_r(array_keys($array));
+print_r(array_keys($array, 'blue'));
+</code></pre></div></div>
+
+<h4 id="output-3">Output</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Array
+(
+    [0] =&gt; a
+    [1] =&gt; b
+    [2] =&gt; c
+)
+Array
+(
+    [0] =&gt; b
+)
+</code></pre></div></div>
+
+<p><em>Note: by default the <code class="highlighter-rouge">search_value</code> parameter uses a loose comparison, but
+you can include a <a href="http://php.net/manual/en/function.array-keys.php">third
+parameter</a> to enforce strict
+matches.</em></p>
+
+<h3 id="5-array_map">5. array_map</h3>
+
+<p>This is one of my favorite array functions. It allows you to loop over an array
+and manipulate each value or call some external function. It can be used as <a href="https://www.shiphp.com/blog/2017/php-loops">a
+more concise looping
+method</a>.</p>
+
+<h4 id="code-4">Code</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$array = ['a' =&gt; 'red', 'b' =&gt; 'blue', 'c' =&gt; 'green'];
+
+$array = array_map(function ($value) {
+    return $value . " modified";
+}, $array);
+
+print_r($array);
+</code></pre></div></div>
+
+<h4 id="output-4">Output</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Array
+(
+    [a] =&gt; red modified
+    [b] =&gt; blue modified
+    [c] =&gt; green modified
+)
+</code></pre></div></div>
+
+<p><em>Note: You can pass multiple arrays into <code class="highlighter-rouge">array_map</code> and use each array as a
+value in the callback function. For more detailed examples <a href="http://php.net/manual/en/function.array-map.php">check the
+documentation</a>.</em></p>
+
+<h3 id="6-array_merge">6. array_merge</h3>
+
+<p>If you have two arrays and would like to merge them into a single array,
+<code class="highlighter-rouge">array_merge</code> makes it a snap.</p>
+
+<h4 id="code-5">Code</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$array1 = ['red', 'blue', 'green'];
+$array2 = ['red', 'brown', 'green'];
+print_r(array_merge($array1, $array2));
+</code></pre></div></div>
+
+<h4 id="output-5">Output</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Array
+(
+    [0] =&gt; red
+    [1] =&gt; blue
+    [2] =&gt; green
+    [3] =&gt; red
+    [4] =&gt; brown
+    [5] =&gt; green
+)
+</code></pre></div></div>
+
+<p><em>Note: When using non-numeric array keys <code class="highlighter-rouge">array_merge</code> works a little
+differently. It will actually overwrite values with identical keys. This can be
+good, but don’t let it catch you off guard.</em></p>
+
+<h3 id="7-array_pop">7. array_pop</h3>
+
+<p><code class="highlighter-rouge">array_pop</code> actually has a couple of use cases. You can use it to shorten an
+array by one and you can use it to retrieve the last element in an array. Be
+careful though because it modifies the array either way.</p>
+
+<h4 id="code-6">Code</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$array = ['red', 'blue', 'green'];
+
+print_r(array_pop($array));
+print_r($array);
+</code></pre></div></div>
+
+<h4 id="output-6">Output</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>green
+
+Array
+(
+    [0] =&gt; red
+    [1] =&gt; blue
+)
+</code></pre></div></div>
+
+<h3 id="8-array_search">8. array_search</h3>
+
+<p>When you want to find a specific value within an array or you want to check
+whether the value exists, <code class="highlighter-rouge">array_search</code> can be very useful. It returns the key
+corresponding to the found value.</p>
+
+<h4 id="code-7">Code</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$array = ['red', 'blue', 'green'];
+print_r(array_search('blue', $array));
+</code></pre></div></div>
+
+<h4 id="output-7">Output</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1
+</code></pre></div></div>
+
+<p><em>Note: If an item is not found, <code class="highlighter-rouge">array_search</code> will return <code class="highlighter-rouge">false</code> but if
+the item is found at index <code class="highlighter-rouge">0</code> then it will return <code class="highlighter-rouge">0</code>. This is one of those
+cases where strict type checking becomes important.</em></p>
+
+<h3 id="9-array_reduce">9. array_reduce</h3>
+
+<p>When you want to convert an array into a single value or string, add up all the
+values in an array, or something like that, <code class="highlighter-rouge">array_reduce</code> can come in handy.</p>
+
+<h4 id="code-8">Code</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$array = ['red', 'blue', 'green'];
+print_r(array_reduce($array, function ($carry, $item) {
+    return $carry . " " . $item;
+}));
+</code></pre></div></div>
+
+<h4 id="output-8">Output</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>red blue green
+</code></pre></div></div>
+
+<p><em>Note: If you just want to convert an array into a string with separators as in
+the above example, you’re probably better off using <code class="highlighter-rouge">implode</code>, but
+<code class="highlighter-rouge">array_reduce</code> is still good for more complex conversions.</em></p>
+
+<h3 id="10-array_slice">10. array_slice</h3>
+
+<p>I find myself frequently trying to extract the beginning or end of an array, so
+<code class="highlighter-rouge">array_slice</code> has come in handy a number of times. It allows you to take a cut
+of an array by specifying an offset and length.</p>
+
+<h4 id="code-9">Code</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$array = ['red', 'blue', 'green'];
+// First element in an array
+print_r(array_slice($array, 0, 1)) . 
+;
+// Last element in an array
+print_r(array_slice($array, -1, 1)) . 
+;
+// Second two elements
+print_r(array_slice($array, 1, 2)) . 
+;
+</code></pre></div></div>
+
+<h4 id="output-9">Output</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Array
+(
+    [0] =&gt; red
+)
+Array
+(
+    [0] =&gt; green
+)
+Array
+(
+    [0] =&gt; blue
+    [1] =&gt; green
+)
+</code></pre></div></div>
+
+<p><em>Note: <code class="highlighter-rouge">array_slice</code> will reset your keys by default, but it has a fourth
+parameter that you can <a href="http://php.net/manual/en/function.array-slice.php">set to retain keys</a>.</em></p>
+
+<h3 id="11-array_values">11. array_values</h3>
+
+<p>Similar to <code class="highlighter-rouge">array_keys</code> there is a function to get just the values from an array
+and reset the indices to their numerical defaults. <code class="highlighter-rouge">array_values</code> allows you to
+pass in an array and get only the values of each item back, which can be useful
+if you’ve put your array into some custom order and want the indices to reflect
+that.</p>
+
+<h4 id="code-10">Code</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$array = ['a' =&gt; 'red', 'b' =&gt; 'blue', 'c' =&gt; 'green'];
+print_r(array_values($array));
+</code></pre></div></div>
+
+<h4 id="output-10">Output</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Array
+(
+    [0] =&gt; red
+    [1] =&gt; blue
+    [2] =&gt; green
+)
+</code></pre></div></div>
+
+<h3 id="12-count">12. count</h3>
+
+<p>Another common task when dealing with arrays is determining the length of the
+array. <code class="highlighter-rouge">count</code> can actually be used for many different variable types, but I
+find it most useful for counting the number of elements in an array.</p>
+
+<h4 id="code-11">Code</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$array = ['red', 'blue', 'green'];
+
+print_r(count($array));
+</code></pre></div></div>
+
+<h4 id="output-11">Output</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>3
+</code></pre></div></div>
+
+<p><em>Note: You can also set count to <code class="highlighter-rouge">COUNT_RECURSIVE</code> which means it will count
+the number of sub-elements within an array of arrays. Check out <a href="http://php.net/manual/en/function.count.php">the
+documentation</a> for details.</em></p>
+
+<h3 id="13-in_array">13. in_array</h3>
+
+<p>Rather than looping over an array to check whether or not a value appears in the
+array, you can simply call <code class="highlighter-rouge">in_array</code> and let PHP do the work. This function
+will return a boolean <code class="highlighter-rouge">true</code> if it finds the value and <code class="highlighter-rouge">false</code> if it does not.</p>
+
+<h4 id="code-12">Code</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$array = ['red', 'blue', 'green'];
+print_r(in_array('blue', $array));
+</code></pre></div></div>
+
+<h4 id="output-12">Output</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1
+</code></pre></div></div>
+
+<h3 id="14-sortksortusort">14. sort/ksort/usort</h3>
+
+<p>There are a number of built-in sorting functions for arrays in PHP, but I’ll
+limit myself to three of the most common. First, <code class="highlighter-rouge">sort</code> will compare each value
+in your array and order them from lowest to highest. Second, <code class="highlighter-rouge">ksort</code> will
+compare each <em>key</em> in your array and order them from lowest to highest. Finally,
+<code class="highlighter-rouge">usort</code> lets you define a function that will compare each value and do the
+sorting.</p>
+
+<h4 id="code-13">Code</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>// sort
+$array = [10 =&gt; 90, 9 =&gt; 93, 7 =&gt; 92, 13 =&gt; 91];
+
+sort($array);
+
+print_r($array);
+
+// ksort
+$array = [10 =&gt; 90, 9 =&gt; 93, 7 =&gt; 92, 13 =&gt; 91];
+
+ksort($array);
+
+print_r($array);
+
+// usort
+$array = [10 =&gt; 90, 9 =&gt; 93, 7 =&gt; 92, 13 =&gt; 91];
+
+usort($array, function ($a, $b) {
+    // Sorts by reverse numerical order
+    return $a &lt; $b;
+});
+
+print_r($array);
+</code></pre></div></div>
+
+<h4 id="output-13">Output</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Array
+(
+    [0] =&gt; 90
+    [1] =&gt; 91
+    [2] =&gt; 92
+    [3] =&gt; 93
+)
+Array
+(
+    [7] =&gt; 92
+    [9] =&gt; 93
+    [10] =&gt; 90
+    [13] =&gt; 91
+)
+Array
+(
+    [0] =&gt; 93
+    [1] =&gt; 92
+    [2] =&gt; 91
+    [3] =&gt; 90
+)
+</code></pre></div></div>
+
+<p><em>Note: In each of these functions the array is <a href="http://php.net/manual/en/language.references.pass.php">passed by
+reference</a>, meaning the
+function modifies the array directly and doesn’t return the modified array. Keep
+this in mind if you want to keep a copy of your original array.</em></p>
+
+<p>If you’d like to see more array functions or learn more about arrays in PHP, be
+sure to <a href="http://php.net/manual/en/ref.array.php">check out the manual</a>.</p>
+:ET

@@ -1,0 +1,93 @@
+I"�<p><img src="https://i.imgur.com/asQ0O0C.jpg" alt="" /></p>
+
+<p>Package management is a method for importing code (often from open source
+libraries) and keeping dependencies up to date in a software development
+project. In PHP, we have a couple ways to manage packages, but the dominant
+choice for modern PHP development is <a href="https://getcomposer.org/">Composer</a>.</p>
+
+<p>While you can install PHP and Composer on your local machine directly, in this
+tutorial we’ll use Docker, which allows us to run PHP and Composer scripts
+without configuring either on our system directly. If you haven’t already, you
+should <a href="https://docs.docker.com/engine/installation/">install Docker for your operating
+system</a>.</p>
+
+<h3 id="creating-a-php-timer-script">Creating a PHP Timer Script</h3>
+
+<p>We are going to write a PHP script that sleeps for between 1 and 3 seconds, then
+tells us how long it waited. It’s very simple using the <a href="https://github.com/sebastianbergmann/php-timer">PHP Timer
+package</a>, but we’ll need to
+import it.</p>
+
+<h4 id="composerjson">composer.json</h4>
+
+<p>Create a new file called <code class="highlighter-rouge">composer.json</code> and add the following to it:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{
+    "require": {
+        "phpunit/php-timer": "^1.0.9"
+    }
+}
+</code></pre></div></div>
+
+<p>This tells Composer about our dependencies — in this case, just one package —
+when we run the install command.</p>
+
+<h4 id="installing-the-dependencies">Installing the Dependencies</h4>
+
+<p>Next, we will install the dependencies using <a href="https://hub.docker.com/r/composer/composer/">the official Composer Docker
+image</a>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run --rm -v $(pwd):/app composer/composer:latest install
+</code></pre></div></div>
+
+<p>Let’s look at this docker command and see what’s going on:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">docker run</code> is Docker’s command to <a href="https://docs.docker.com/engine/reference/run/">run a command within a new
+container</a>. There are a lot of
+options that you can pass in, so be sure to read the documentation.</li>
+  <li><code class="highlighter-rouge">--rm</code> tells Docker to “remove” the container after the command is run.
+Alternatively, you can save the container and name it to run it again.</li>
+  <li><code class="highlighter-rouge">-v $(pwd):/app</code> is telling Docker to <a href="https://docs.docker.com/engine/tutorials/dockervolumes/">mount a
+volume</a>. You typically
+pass in a path to a folder on your root directory, a colon, and then a path to
+the folder in the container. Here we are mounting the current directory (along
+with the <code class="highlighter-rouge">composer.json</code> file we created) into a container. This mounting goes
+both ways, so we will also see the <code class="highlighter-rouge">/vendor</code> folder created when Composer runs.</li>
+  <li><code class="highlighter-rouge">composer/composer:latest</code> is the actual image we’re using for this container.
+This will install the packages for PHP 7, but Composer also has images for older
+versions of PHP.</li>
+  <li><code class="highlighter-rouge">install</code> is the Composer command that is going to be run. You can also do
+<code class="highlighter-rouge">update</code> or <code class="highlighter-rouge">dump-autoload</code> in this same manner.</li>
+</ul>
+
+<p>Now all the dependencies are installed in a new <code class="highlighter-rouge">/vendor</code> folder, but we still
+have to import them and write our PHP script.</p>
+
+<h4 id="the-php-script">The PHP Script</h4>
+
+<p>Our PHP script imports the dependencies that are included in Composer’s
+<code class="highlighter-rouge">vendor/autoload.php</code> file, starts a timer, waits between 1 and 3 seconds, then
+outputs the final time that the script took to run. This part of the tutorial
+works the same way whether you use Docker or not. This file should be named
+<code class="highlighter-rouge">index.php</code>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span> <span class="k">require</span><span class="p">(</span><span class="s1">'vendor/autoload.php'</span><span class="p">);</span>
+<span class="err">\</span><span class="n">PHP_Timer</span><span class="o">::</span><span class="nf">start</span><span class="p">();</span>
+<span class="nb">sleep</span><span class="p">(</span><span class="nb">rand</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">));</span>
+<span class="nv">$time</span> <span class="o">=</span> <span class="err">\</span><span class="n">PHP_Timer</span><span class="o">::</span><span class="nf">stop</span><span class="p">();</span>
+<span class="k">print</span> <span class="err">\</span><span class="n">PHP_Timer</span><span class="o">::</span><span class="nf">secondsToTimeString</span><span class="p">(</span><span class="nv">$time</span><span class="p">);</span>
+</code></pre></div></div>
+
+<h4 id="running-the-php-script">Running the PHP Script</h4>
+
+<p>Finally, we just need to run the new PHP script we created in another Docker
+container. This is covered in more detail in our tutorial on running PHP scripts
+in Docker, but the final command should be:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run --rm -v $(pwd):/app -w /app php:cli php index.php
+</code></pre></div></div>
+
+<p>You should see either <code class="highlighter-rouge">1 second</code>, <code class="highlighter-rouge">2 seconds</code>, or <code class="highlighter-rouge">3 seconds</code> on your terminal
+output.</p>
+:ET

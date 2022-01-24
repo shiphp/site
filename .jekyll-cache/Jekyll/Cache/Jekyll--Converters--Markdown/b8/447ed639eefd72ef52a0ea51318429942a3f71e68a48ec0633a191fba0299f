@@ -1,0 +1,128 @@
+I"�<p><img src="https://i.imgur.com/z6eGJzp.jpg" alt="" /></p>
+
+<p>Like most object-oriented programming languages, classes are the backbone of PHP
+projects. Classes allow you to group code into logical pieces, reuse code, and
+prevent misuse of functions and variables.</p>
+
+<p>This post will focus on the mechanics of classes and not the underlying concepts
+in object oriented software design. If you are interested in the broader
+question of “What is a class?” then check out the resources section below. If
+you’re ready to learn how to apply object oriented programming to PHP, then read
+on!</p>
+
+<h3 id="creating-a-class">Creating a class</h3>
+
+<p>First, let’s see what it takes to create a class in PHP. Create a new file
+called <code class="highlighter-rouge">ExampleClass.php</code> and add this code to it:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+<span class="kd">class</span> <span class="nc">ExampleClass</span> <span class="p">{</span>
+    
+    <span class="k">public</span> <span class="nv">$variable</span><span class="p">;</span>
+    
+    <span class="k">public</span> <span class="k">function</span> <span class="n">classFunction</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">variable</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>First, we named the file and class the same thing intentionally. While you don’t
+have to follow all the PSR coding standards, PHP has pretty much adopted <a href="http://www.php-fig.org/psr/psr-1/#namespace-and-class-names">PSR-1 for most modern projects</a>, so I’d
+strongly recommend it.</p>
+
+<p>Next, we can see that this class has one variable (<code class="highlighter-rouge">public $variable;</code>) and one
+method (<code class="highlighter-rouge">public function classFunction()…</code>). Both use the visibility <code class="highlighter-rouge">public</code>
+which will be explained in more detail at the end of this post, but for now,
+just know that public variables and methods can be used and modified by other
+classes.</p>
+
+<h3 id="instantiating-a-class-and-calling-a-method">Instantiating a class and calling a method</h3>
+
+<p>In order to use a class it typically has to be “instantiated” which is a
+programming term meaning that we need to make a new object from the class. In
+order to instantiate this class, let’s create a new file called <code class="highlighter-rouge">index.php</code> and
+add this code:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+
+<span class="c1">// Include the class file</span>
+<span class="k">require</span><span class="p">(</span><span class="s1">'ExampleClass.php'</span><span class="p">);</span>
+
+<span class="c1">// Instantiate the class</span>
+<span class="nv">$example</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ExampleClass</span><span class="p">();</span>
+
+<span class="c1">// Set the class variable</span>
+<span class="nv">$example</span><span class="o">-&gt;</span><span class="n">variable</span> <span class="o">=</span> <span class="s2">"Hello World!"</span><span class="p">;</span>
+
+<span class="c1">// Display the results of the class function</span>
+<span class="k">echo</span> <span class="nv">$example</span><span class="o">-&gt;</span><span class="nf">classFunction</span><span class="p">();</span>
+</code></pre></div></div>
+
+<p>Now you can run this <a href="https://www.shiphp.com/blog/2017/php-script-in-docker">PHP file in your
+terminal</a>
+with the command: <code class="highlighter-rouge">$ php index.php</code> . You should see <code class="highlighter-rouge">Hello World!</code> when it’s
+done.</p>
+
+<p>So why would you want to use a class instead of just a simple function?</p>
+
+<p>At first glance, it seems that classes just add more complexity than function
+files. If we wanted to write a functional version of the code above in PHP, it
+could be very concise:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+
+<span class="k">function</span> <span class="n">globalFunction</span><span class="p">(</span><span class="nv">$variable</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nv">$variable</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">echo</span> <span class="nf">globalFunction</span><span class="p">(</span><span class="s2">"Hello World"</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>But the problem is that as code bases get larger, new developers work with the
+code, or we decide to release the code publicly, we need a better way to
+organize our code and ensure that developers don’t misuse certain functions.
+That’s where <a href="http://php.net/manual/en/language.oop5.visibility.php">PHP’s class member
+visibility</a> helps us out.</p>
+
+<h3 id="private-member-visibility">Private member visibility</h3>
+
+<p>In order to keep certain elements in a class (called “members”) from being used
+by code outside the class, you can mark a method or variable <code class="highlighter-rouge">private</code> . Here’s
+an example modifying our ExampleClass above:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+<span class="kd">class</span> <span class="nc">ExampleClass</span> <span class="p">{</span>
+    <span class="k">public</span> <span class="nv">$variable</span><span class="p">;</span>
+    <span class="k">private</span> <span class="nv">$privateVariable</span> <span class="o">=</span> <span class="s2">"I am here."</span><span class="p">;</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="n">classFunction</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">variable</span> <span class="mf">.</span> <span class="s2">" "</span> <span class="mf">.</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="nf">privateFunction</span><span class="p">();</span>
+    <span class="p">}</span>
+    <span class="k">private</span> <span class="k">function</span> <span class="n">privateFunction</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">privateVariable</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Now when we run the same <code class="highlighter-rouge">index.php</code> file as before we should get the output:
+<code class="highlighter-rouge">Hello World! I am here.</code></p>
+
+<p>But, if we tried to access the private variable or method directly in the index
+file, we’d get a fatal error. For example:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+<span class="k">require</span><span class="p">(</span><span class="s1">'ExampleClass.php'</span><span class="p">);</span>
+<span class="nv">$example</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ExampleClass</span><span class="p">();</span>
+
+<span class="c1">// Produces a fatal error in PHP</span>
+<span class="nv">$example</span><span class="o">-&gt;</span><span class="n">privateVariable</span> <span class="o">=</span> <span class="s2">"Updating the variable"</span><span class="p">;</span>
+</code></pre></div></div>
+
+<h3 id="resources">Resources</h3>
+
+<ul>
+  <li><a href="https://www.youtube.com/watch?v=FKQ6Ohj_PFY">Intro to object oriented programming
+[Video]</a></li>
+  <li><a href="http://www.adobe.com/devnet/actionscript/learning/oop-concepts/objects-and-classes.html">OOP Concepts: Objects and Classes by
+Adobe</a></li>
+</ul>
+:ET

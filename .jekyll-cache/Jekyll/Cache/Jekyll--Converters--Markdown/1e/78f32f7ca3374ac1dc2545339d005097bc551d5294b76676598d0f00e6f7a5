@@ -1,0 +1,141 @@
+I"1<p><img src="https://i.imgur.com/IVWoITH.jpg?1" alt="" /></p>
+
+<p>Many developers prefer strongly-typed languages, and critics have often <a href="http://david.heinemeierhansson.com/arc/000074.html">dogged
+PHP</a> because its weak typing
+opens users up to errors and vulnerabilities.</p>
+
+<p>While PHP is still a “weakly-typed” language (meaning variables can change types
+throughout the program’s lifecycle), PHP 7.0 sought to give developers more
+control over how they specify function inputs and outputs in two ways: type
+hinting and return types.</p>
+
+<h3 id="type-hinting-in-php-7">Type Hinting in PHP 7</h3>
+
+<p><a href="http://php.net/manual/en/functions.arguments.php#functions.arguments.type-declaration">Type
+hinting</a>
+is when a function input’s type is specified in the definition of the function’s
+parameters. That sounds like a mouthful, but it’s really not that hard to grasp
+in practice once you are familiar with <a href="http://www.shiphp.com/blog/2017/php-functions">functions in
+PHP</a>.</p>
+
+<p>Let’s look at a simple function that converts a string to an integer in PHP:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>function stringToInteger(string $number) {
+  return (int) $number;
+}
+
+$result = stringToInteger("12");
+
+var_dump($result);
+</code></pre></div></div>
+
+<p>When run, this file will output  indicating that our function worked, but what
+happens when we try to pass in a variable that is not a string? For example,
+what if we passed in an array like ?</p>
+
+<p>We would get an error like this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>PHP Fatal error:  Uncaught TypeError: Argument 1 passed to stringToInteger() must be of the type string, array given, called in returns.php on line 7 and defined in returns.php:3
+</code></pre></div></div>
+
+<p>That helpful error is telling us that our input for this function should be a
+string. If you’re using an IDE like
+<a href="https://www.jetbrains.com/phpstorm/">PHPStorm</a>, you will even see an error
+before you run the program, and that could save you serious time and effort
+debugging.</p>
+
+<p>But because PHP is a weakly typed language and because it <a href="http://php.net/manual/en/language.types.type-juggling.php">tries to convert
+types on its own</a>,
+running the function with an integer (or even a boolean) will not throw an
+error:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var_dump(stringToInteger(12));
+// Output: int(12)
+
+var_dump(stringToInteger(true));
+// Output: int(1)
+</code></pre></div></div>
+
+<p>This is where PHP gets tricky, and it’s easy to see why critics will say that
+this is a weakness of the language. Sometimes it’s just too forgiving!</p>
+
+<h3 id="return-types-in-php-7">Return Types in PHP 7</h3>
+
+<p>Another useful feature for people who like strong typing is <a href="http://php.net/manual/en/functions.returning-values.php#functions.returning-values.type-declaration">PHP’s return type
+declarations</a>.
+While type hinting allows you to specify a function’s input variable types,
+return typing allow you to specify a function’s output variable type. Let’s look
+at our string to integer converter:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>function stringToInteger(string $number): int {
+  return (int) $number;
+}
+
+$result = stringToInteger("12");
+</code></pre></div></div>
+
+<p>We’ve added  to the function declaration line just before the opening bracket.
+This will tell other developers and our IDE to expect an integer as a return
+type from this function. The actual output of the function doesn’t change, but
+what if we remove the  designation from the function? For example:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>function stringToInteger(string $number): int {
+  return $number;
+}
+</code></pre></div></div>
+
+<p>This function will still return  but the return type designation is actually
+doing the re-casting of our input variable. This is pretty cool because now
+we’ve got PHP’s type juggling doing work for us.</p>
+
+<p>This could also be useful in a callback because it can allow you to write more
+concise code:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>// Return types in callback
+$array = ["12", "1.3", "3"];
+
+$result = array_map(function ($n): int { return $n; }, $array);
+
+var_dump($result);
+
+/* Output:
+array(3) {
+  [0] =&gt;
+  int(12)
+  [1] =&gt;
+  int(1)
+  [2] =&gt;
+  int(3)
+}
+*/
+</code></pre></div></div>
+
+<p>You might be replacing readability for brevity in the above example, but that’s
+a tradeoff that you’ll have to decide to make or not. Either way, it’s good to
+know what’s possible with return types and type hinting in PHP.</p>
+
+<h3 id="references">References</h3>
+
+<h4 id="returnsphp">returns.php</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+
+<span class="c1">// Type hinting and return types in function</span>
+
+<span class="k">function</span> <span class="n">stringToInteger</span><span class="p">(</span><span class="kt">string</span> <span class="nv">$number</span><span class="p">):</span> <span class="kt">int</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nv">$number</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nv">$result</span> <span class="o">=</span> <span class="nf">stringToInteger</span><span class="p">(</span><span class="s2">"12"</span><span class="p">);</span>
+
+<span class="nb">var_dump</span><span class="p">(</span><span class="nv">$result</span><span class="p">);</span>
+
+<span class="c1">// Type hinting and return types in callback</span>
+
+<span class="nv">$array</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"12"</span><span class="p">,</span> <span class="s2">"1.3"</span><span class="p">,</span> <span class="s2">"3"</span><span class="p">];</span>
+
+<span class="nv">$result</span> <span class="o">=</span> <span class="nb">array_map</span><span class="p">(</span><span class="k">function</span> <span class="p">(</span><span class="kt">string</span> <span class="nv">$n</span><span class="p">):</span> <span class="kt">int</span> <span class="p">{</span> <span class="k">return</span> <span class="nv">$n</span><span class="p">;</span> <span class="p">},</span> <span class="nv">$array</span><span class="p">);</span>
+
+<span class="nb">var_dump</span><span class="p">(</span><span class="nv">$result</span><span class="p">);</span>
+</code></pre></div></div>
+:ET

@@ -1,0 +1,112 @@
+I"� <p><img src="https://i.imgur.com/uX7KDjy.jpg" alt="" /></p>
+
+<p>Like any programming language, PHP supports conditional statements to execute
+specific blocks of code if a statement is true (or false) or some condition is
+met. If you’re familiar with conditional statements in other programming
+languages PHP should give you no trouble, but there are a couple lesser-known
+operators (ternary and null coalescing) that will be covered at the end.</p>
+
+<h3 id="if-and-else">“if” and “else”</h3>
+
+<p>Let’s look at a simple <code class="highlighter-rouge">if</code> statement first:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+<span class="nv">$variable</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+<span class="k">if</span> <span class="p">(</span><span class="nv">$variable</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">echo</span> <span class="s2">"Result is true"</span><span class="p">;</span>
+<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="k">echo</span> <span class="s2">"Result is false"</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Upon execution, this script will output <code class="highlighter-rouge">Result is true</code> because the variable
+was set to true, and if we set it to false (or <a href="http://php.net/manual/en/types.comparisons.php">any value evaluated as
+false</a>) then the script will
+output <code class="highlighter-rouge">Result is false</code>. This simple example shows you how programs can branch
+using conditional statements.</p>
+
+<h3 id="elseif">“elseif”</h3>
+
+<p>But what if we have three or more possible values for our variable? We may want
+to test a number of conditions and take a different path for each. You can do
+this by nesting <code class="highlighter-rouge">if — else</code> blocks, but that gets messy really quick. The better
+solution is to use an <code class="highlighter-rouge">elseif</code> statement:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+<span class="nv">$number</span> <span class="o">=</span> <span class="nb">rand</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">);</span>
+<span class="k">if</span> <span class="p">(</span><span class="nv">$number</span> <span class="o">==</span> <span class="mi">3</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">echo</span> <span class="s2">"The number is three"</span><span class="p">;</span>
+<span class="p">}</span> <span class="k">elseif</span> <span class="p">(</span><span class="nv">$number</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">echo</span> <span class="s2">"The number is two"</span><span class="p">;</span>
+<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="k">echo</span> <span class="s2">"The number must be one"</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>In this example, if the random integer generated is equal to <code class="highlighter-rouge">3</code> it will get
+caught in the first block, if equal to <code class="highlighter-rouge">2</code> it will execute the second, and if
+neither of the first two conditionals are met, the <code class="highlighter-rouge">else</code> block will be
+triggered (and we assume the number is <code class="highlighter-rouge">1</code>).</p>
+
+<h3 id="ternary-operators">Ternary Operators</h3>
+
+<p><code class="highlighter-rouge">if-else</code> blocks tend to take up a lot of space, so PHP also has <a href="https://davidwalsh.name/php-shorthand-if-else-ternary-operators">support for
+ternary
+conditionals</a>,
+which can be put onto a single line. This can greatly cut down on the amount of
+space taken by your code, and make things faster to read. For example, we can
+output one of two choices by using just one line of code:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+<span class="k">echo</span> <span class="nb">rand</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="o">?</span> <span class="s2">"One is the answer"</span> <span class="o">:</span> <span class="s2">"The answer must be two"</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>Let’s break this down piece by piece:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">echo</code> will output the result of this statement to the command line.</li>
+  <li><code class="highlighter-rouge">rand(1, 2)</code> will generate a random number with a value of either 1 or 2.</li>
+  <li><code class="highlighter-rouge">== 1</code> tests whether the number generated is equal to <code class="highlighter-rouge">1</code>. If so, this part will
+evaluate to <code class="highlighter-rouge">true</code>.</li>
+  <li><code class="highlighter-rouge">?</code> is the ternary test. It’s shorthand for <code class="highlighter-rouge">if(...) {</code> but the condition comes
+<em>before</em> the question mark.</li>
+  <li><code class="highlighter-rouge">"One is the answer"</code> will be returned if the conditional statement is true.</li>
+  <li><code class="highlighter-rouge">: "The answer must be two"</code> will be returned if the conditional statement is
+not true. The <code class="highlighter-rouge">:</code> is essentially equivalent to <code class="highlighter-rouge">} else {</code> in the previous
+examples.</li>
+</ul>
+
+<p>So the above script will write <code class="highlighter-rouge">One is the answer</code> to the command line if the
+random number is equal to <code class="highlighter-rouge">1</code> and <code class="highlighter-rouge">The answer must be two</code> if it’s not.</p>
+
+<h3 id="ternary-shorthand-and-null-coalescing">Ternary Shorthand and Null Coalescing</h3>
+
+<p>Finally, PHP has two ways to further shorten ternaries, but one (null
+coalescing) is only available in PHP 7+. If we just want to output the number
+generated by a random number generator, then we could shorten our code like so:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+
+<span class="nv">$number</span> <span class="o">=</span> <span class="nb">rand</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+<span class="k">echo</span> <span class="nv">$number</span> <span class="o">?:</span> <span class="s2">"None"</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>If the number is <code class="highlighter-rouge">1</code> or <code class="highlighter-rouge">2</code> then this script will echo the number, but if it’s
+<code class="highlighter-rouge">0</code> — which evaluates to false — then it will echo <code class="highlighter-rouge">None</code>. This can be useful if
+you’re not sure if a previous value has been updated or not, but it fails if a
+previous value is completely unset:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$number</span> <span class="o">?:</span> <span class="s2">"None"</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>The above script will throw an error because <code class="highlighter-rouge">$number</code> is not defined, so we can
+instead use the <a href="https://lornajane.net/posts/2015/new-in-php-7-null-coalesce-operator">null coalesce
+operator</a>
+to first test if it’s set:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$number</span> <span class="o">??</span> <span class="s2">"None"</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>This script will output <code class="highlighter-rouge">None</code> but will not throw an error assuming you’re using
+PHP 7+.</p>
+:ET

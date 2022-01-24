@@ -1,0 +1,73 @@
+I"�<p><img src="https://i.imgur.com/BsVbhLr.jpg" alt="" /></p>
+
+<p>If you’re familiar with the process for creating a simple website using PHP,
+then adding Docker to the mix should be relatively easy. The great thing about
+using Docker is that you have better portability over your code. Let’s look at a
+simple Docker command that will host a webpage written in PHP.</p>
+
+<h3 id="our-php-script">Our PHP Script</h3>
+
+<h4 id="indexphp">index.php</h4>
+
+<p>Create a file called <code class="highlighter-rouge">index.php</code> and add some HTML like this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;!doctype html&gt;</span>
+
+<span class="nt">&lt;html</span> <span class="na">lang=</span><span class="s">"en"</span><span class="nt">&gt;</span>
+<span class="nt">&lt;head&gt;</span>
+  <span class="nt">&lt;meta</span> <span class="na">charset=</span><span class="s">"utf-8"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;title&gt;</span>My PHP Website<span class="nt">&lt;/title&gt;</span>
+<span class="nt">&lt;/head&gt;</span>
+
+<span class="nt">&lt;body&gt;</span>
+  <span class="nt">&lt;h1&gt;</span>My PHP Website<span class="nt">&lt;/h1&gt;</span>
+  <span class="nt">&lt;p&gt;</span>Here is some static content.<span class="nt">&lt;/p&gt;</span>
+  <span class="nt">&lt;p&gt;</span><span class="cp">&lt;?php echo "Here is some dynamic content"; ?&gt;</span><span class="nt">&lt;/p&gt;</span>
+<span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span>
+</code></pre></div></div>
+
+<p>As you can see, there’s one single line of PHP in the script just to make sure
+our server is actually working.</p>
+
+<p>Let’s serve that website using the official <a href="https://hub.docker.com/_/php/">PHP Apache
+image</a>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run --rm -p 8000:80 -v $(pwd):/var/www/html php:apache
+</code></pre></div></div>
+
+<p>Docker should download the latest version of the image and start up a webpage at
+<a href="http://localhost:8000/">localhost:8000</a>.</p>
+
+<h3 id="whats-going-on-with-that-docker-command">What’s going on with that Docker command?</h3>
+
+<p>Let’s break down the <code class="highlighter-rouge">docker run</code> command piece by piece:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">docker run</code> This is Docker’s command to <a href="https://docs.docker.com/engine/reference/run/">run a command within a new
+container</a>. There are a lot of
+options that you can pass in, but this example is pretty minimal.</li>
+  <li><code class="highlighter-rouge">--rm</code> This tells Docker to “remove” the container after the command is completed. In
+this case, that means that when you exit (by pressing <code class="highlighter-rouge">control + c</code> on Mac), the container
+will stop and remove itself from your system.</li>
+  <li><code class="highlighter-rouge">-p 8000:80</code> If you’re familiar with <a href="https://httpd.apache.org/">Apache</a>, you know that it
+typically serves web applications on port 80. This parameter tells Docker to map
+port 80 within the container to port 8000 on the host. That’s why our site is
+available at .</li>
+  <li><code class="highlighter-rouge">-v $(pwd):/var/www/html</code> This is telling Docker to <a href="https://docs.docker.com/engine/tutorials/dockervolumes/">mount a
+volume</a>. You typically
+pass in a path to a folder on your root directory, a colon, and then a path to
+the folder in the container. Volumes are a powerful tool, but for this simple
+example we’re just mounting the <a href="https://www.computerhope.com/unix/upwd.htm">current
+directory</a> from our terminal into
+the directory Apache serves by default.</li>
+  <li><code class="highlighter-rouge">php:apache</code> Here we specify the image to use for PHP. As I mentioned above, this image
+includes the Apache webserver.</li>
+</ul>
+
+<p>In just one line we were able to serve a PHP based website on our machine, and
+if we pass that same Docker command to other developers, they will be able to do
+the same thing without installing any new software. Unlike a traditional VM,
+this command takes a few seconds to get up and running, and it’s very
+lightweight.</p>
+:ET

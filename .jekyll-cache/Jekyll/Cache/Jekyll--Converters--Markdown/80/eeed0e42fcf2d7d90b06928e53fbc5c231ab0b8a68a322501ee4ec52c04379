@@ -1,0 +1,25 @@
+I"k<p><a href="/books#building-your-first-php-application-with-docker">
+<img style="float: right; width: 30%; height: auto; margin-left: 10px;" src="https://i.imgur.com/Gui5RIk.png" />
+</a></p>
+
+<h2 id="building-your-first-php-application-with-docker">Building Your First PHP Application with Docker</h2>
+
+<h4 id="a-step-by-step-guide-for-php-developers-learning-docker">A step-by-step guide for PHP developers learning Docker</h4>
+
+<p>Docker has quickly become the container engine of choice, and it may be replacing a virtual machine near you soon. This book offers a step-by-step guide to walk you through building your first real PHP web application using Docker while explaining the basics of the platform along the way.</p>
+
+<p>The application we build in this eBook will do many of the key things web developers need to do on a daily basis, including:</p>
+
+<ul>
+  <li>Installing dependencies using Composer.</li>
+  <li>Getting data from a third-party API.</li>
+  <li>Saving data to a MySQL database.</li>
+  <li>Using a web framework (SlimPHP) for routing.</li>
+  <li>Storing environmental variables securely.</li>
+  <li>And much more!</li>
+</ul>
+
+<p>You can <a href="https://leanpub.com/first-php-docker-application">buy this book on Leanpub</a> today.</p>
+
+<p><em>Also <a href="https://leanpub.com/first-php-docker-application-ru" target="_blank">available in Russian</a></em>.</p>
+:ET

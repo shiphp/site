@@ -1,0 +1,74 @@
+I"�<p><a href="https://www.sqlite.org/index.html">SQLite</a> is a great database for getting started on small projects. Unlike traditional SQL databases (like <a href="https://www.shiphp.com/blog/2017/php-mysql-docker">MySQL</a> or <a href="https://www.shiphp.com/blog/2017/php-postgres-docker">Postgres</a>), SQLite stores all your records in a single flat file that you can easily edit, transfer, or even check into version control (if your project warrants it).</p>
+
+<p>Another great feature of SQLite is that it’s built into the <a href="https://hub.docker.com/_/php/">default PHP images on Docker Hub</a>, so you don’t even have to start up another Docker container, and running a PHP application with a SQLite database is essentially a one-liner. Let’s take a look at how you can incorporate SQLite into your Dockerized PHP apps.</p>
+
+<p><img src="https://i.imgur.com/tju2x2P.jpg" alt="" /></p>
+
+<h2 id="the-code">The Code</h2>
+
+<p>First, let’s take a look at a simple PHP script that connects to a SQLite database (called <code class="highlighter-rouge">testing.sqlite</code>), creates a table, and adds 3 users. Save this file as <code class="highlighter-rouge">index.php</code>:</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+
+<span class="nv">$db</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">SQLite3</span><span class="p">(</span><span class="s1">'testing.sqlite'</span><span class="p">,</span> <span class="no">SQLITE3_OPEN_CREATE</span> <span class="o">|</span> <span class="no">SQLITE3_OPEN_READWRITE</span><span class="p">);</span>
+
+<span class="c1">// Create a table.</span>
+<span class="nv">$db</span><span class="o">-&gt;</span><span class="nf">query</span><span class="p">(</span>
+<span class="s1">'CREATE TABLE IF NOT EXISTS "users" (
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    "name" VARCHAR
+  )'</span>
+<span class="p">);</span>
+
+<span class="c1">// Insert some sample data.</span>
+<span class="nv">$db</span><span class="o">-&gt;</span><span class="nf">query</span><span class="p">(</span><span class="s1">'INSERT INTO "users" ("name") VALUES ("Karl")'</span><span class="p">);</span>
+<span class="nv">$db</span><span class="o">-&gt;</span><span class="nf">query</span><span class="p">(</span><span class="s1">'INSERT INTO "users" ("name") VALUES ("Linda")'</span><span class="p">);</span>
+<span class="nv">$db</span><span class="o">-&gt;</span><span class="nf">query</span><span class="p">(</span><span class="s1">'INSERT INTO "users" ("name") VALUES ("John")'</span><span class="p">);</span>
+
+<span class="c1">// Get a count of the number of users</span>
+<span class="nv">$userCount</span> <span class="o">=</span> <span class="nv">$db</span><span class="o">-&gt;</span><span class="nf">querySingle</span><span class="p">(</span><span class="s1">'SELECT COUNT(DISTINCT "id") FROM "users"'</span><span class="p">);</span>
+<span class="k">echo</span><span class="p">(</span><span class="s2">"User count: </span><span class="nv">$userCount</span><span class="se">\n</span><span class="s2">"</span><span class="p">);</span>
+
+<span class="c1">// Close the connection</span>
+<span class="nv">$db</span><span class="o">-&gt;</span><span class="nf">close</span><span class="p">();</span>
+
+</code></pre></div></div>
+
+<p>This example was adapted from <a href="https://gist.github.com/bladeSk/6294d3266370868601a7d2e50285dbf5">this gist</a> which also includes some other handy SQLite functions.</p>
+
+<h2 id="running-the-container">Running the Container</h2>
+
+<p>In order to run the code above, we can use Docker’s PHP 7.2 image:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run <span class="nt">-v</span> <span class="si">$(</span><span class="nb">pwd</span><span class="si">)</span>:/app php:7.2 php /app/index.php
+<span class="o">&gt;</span> User count: 3
+</code></pre></div></div>
+
+<p>The user count shown is based on the number of users we created in the PHP script. If you add more users, you could see a higher number there.</p>
+
+<h3 id="whats-going-on-here">What’s going on here?</h3>
+
+<ul>
+  <li><code class="highlighter-rouge">docker run</code> All containers are “run” from Docker images. For more details on using <code class="highlighter-rouge">docker run</code>, be sure to <a href="https://docs.docker.com/engine/reference/run/">read the documentation</a>.</li>
+  <li><code class="highlighter-rouge">-v $(pwd):/app</code> This tells Docker to mount the current directory into the container’s <code class="highlighter-rouge">/app</code> folder. This will help us make sure we know where our <code class="highlighter-rouge">index.php</code> file is inside the container.</li>
+  <li><code class="highlighter-rouge">php:7.2</code> This indicates the image we’re using for this container. We could run other versions of PHP just as easily by indicating <code class="highlighter-rouge">php:7.0</code> or <code class="highlighter-rouge">php:5.6</code>.</li>
+  <li><code class="highlighter-rouge">php /app/index.php</code> Finally, this indicates the command to run inside the container. Since we mounted the <code class="highlighter-rouge">index.php</code> file into the <code class="highlighter-rouge">/app</code> directory, it’s available to run there.</li>
+</ul>
+
+<h2 id="saving-the-data">Saving the Data</h2>
+
+<p>While this simple example works, where did our data go?</p>
+
+<p>Since we didn’t mount the SQLite data folder from the container onto our localhost, the data is gone when the container is gone. One simple fix for this is to change our PHP code to use a SQLite file stored in our <code class="highlighter-rouge">/app</code> directory. Just change the first line to:</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$db</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">SQLite3</span><span class="p">(</span><span class="s1">'/app/testing.sqlite'</span><span class="p">,</span> <span class="no">SQLITE3_OPEN_CREATE</span> <span class="o">|</span> <span class="no">SQLITE3_OPEN_READWRITE</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>And run the same Docker command as before:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run <span class="nt">-v</span> <span class="si">$(</span><span class="nb">pwd</span><span class="si">)</span>:/app php:7.2 php /app/index.php
+<span class="o">&gt;</span> User count: 3
+</code></pre></div></div>
+
+<p>Now you’ll see a file (called <code class="highlighter-rouge">testings.sqlite</code>) in the same directory with your <code class="highlighter-rouge">index.php</code> file. If you run the Docker run command again, you’ll get <code class="highlighter-rouge">User count: 6</code> as it uses the same database file as it did the first time. In this way, you can ensure that your SQLite database uses the same data every time you run your container.</p>
+:ET

@@ -1,0 +1,112 @@
+I"X<p><img src="https://i.imgur.com/hvB161p.jpg" alt="" /></p>
+
+<h1 id="environmental-variables-in-php-and-docker">Environmental Variables in PHP and Docker</h1>
+
+<p>When running a PHP application, you almost always want to keep some
+environmentally dependent variables stored outside of your codebase. For
+example, it’s not a good idea to hard-code your database connection information
+because then you will have to remember to switch between local and production
+details while running your app. That’s a sure-fire way to screw something up.</p>
+
+<p>There are a few ways to handle environmental variables in PHP when running
+Docker containers, so in this post we’ll look at four options. For reference,
+our PHP file (let’s call it <code class="highlighter-rouge">index.php</code>) is going to be very simple, and just
+output the value of a environmental variable called <code class="highlighter-rouge">ENV_VAR</code>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nb">getenv</span><span class="p">(</span><span class="s1">'ENV_VAR'</span><span class="p">);</span>
+</code></pre></div></div>
+
+<h3 id="1-docker--e-flag">1. Docker “-e” flag</h3>
+
+<p>Docker provides the <code class="highlighter-rouge">-e</code> flag for passing environmental variables into any
+container via the <code class="highlighter-rouge">docker run</code> command. For example, we could run the PHP script
+above with the following:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run --rm -v $(pwd):/app -w /app -e ENV_VAR='Hello World!' php:cli php index.php
+</code></pre></div></div>
+
+<p>Most of the options in this <code class="highlighter-rouge">docker run</code> command are covered in <a href="https://www.shiphp.com/blog/2017/php-script-in-docker">the tutorial on
+running PHP scripts within
+containers</a>,
+but the last flag <code class="highlighter-rouge">-e ENV_VAR='Hello World!'</code> sets a container-wide variable
+that the PHP script can access, and you should see <code class="highlighter-rouge">Hello World!</code> in the command
+line when running this.</p>
+
+<h3 id="2-docker---env-file-flag">2. Docker “ — env-file” flag</h3>
+
+<p>If you have a lot of environmental variables, it may make sense to put them into
+an environmental variables file. Docker can load all the variables from the file
+by passing in the filename like this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run --rm -v $(pwd):/app -w /app --env-file .env php:cli php index.php
+</code></pre></div></div>
+
+<p>Your <code class="highlighter-rouge">.env</code> file should have at least this line:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ENV_VAR=Hello World!
+</code></pre></div></div>
+
+<h3 id="3-dockerfile-env-variables">3. Dockerfile ENV Variables</h3>
+
+<p>Another way to include environmental variables is to include them in your
+Dockerfile. This may not be good for variables you want to keep secret as
+they’re going to be accessible by anyone with the built image you distribute,
+but sometimes they make it easier when you want to use some values for
+production and others for dev environments. First, we need to create a
+<code class="highlighter-rouge">Dockerfile</code> for this project:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>FROM php:cli
+ENV ENV_VAR='Hello World!'
+</code></pre></div></div>
+
+<p>And now we need to build this image:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker build . -t envtest
+</code></pre></div></div>
+
+<p>Finally we can run the container using the new image we just created:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run --rm -v $(pwd):/app -w /app envtest php index.php
+</code></pre></div></div>
+
+<h3 id="4-mounting-a-volume-and-using-the-dotenv-composer-package">4. Mounting a Volume and Using the Dotenv Composer Package</h3>
+
+<p>The last option we’ll cover works well if you’re using a hybrid Docker approach.
+If some of your devs or servers are using Docker and others are not, you can
+mount your <code class="highlighter-rouge">.env</code> file in a volume and load it with the <a href="https://github.com/vlucas/phpdotenv">PHP Dotenv
+package</a>. You’ll need to install the
+package first, and modify your PHP script a little.</p>
+
+<p>First, <a href="https://github.com/vlucas/phpdotenv#installation-with-composer">install the phpdotenv
+package</a> (for
+more info on installing Composer Packages with Docker, <a href="https://www.shiphp.com/blog/2017/composer-php-docker">see this
+tutorial</a>):</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run --rm -v $(pwd):/app composer/composer:latest require vlucas/phpdotenv
+</code></pre></div></div>
+
+<p>Next, update your PHP script to load the package:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span> <span class="k">require</span><span class="p">(</span><span class="s1">'vendor/autoload.php'</span><span class="p">);</span>
+<span class="nv">$dotenv</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Dotenv\Dotenv</span><span class="p">(</span>
+<span class="p">);</span>
+<span class="nv">$dotenv</span><span class="o">-&gt;</span><span class="nf">load</span><span class="p">();</span>
+<span class="k">echo</span> <span class="nb">getenv</span><span class="p">(</span><span class="s1">'ENV_VAR'</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>You’ll also need to make sure your <code class="highlighter-rouge">.env</code> file uses quotes around any values
+with spaces:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ENV_VAR="Hello World!"
+</code></pre></div></div>
+
+<p>And then you can run the PHP script <a href="https://www.shiphp.com/blog/2017/php-script-in-docker">using your Docker command as we did in the
+previous
+tutorial</a>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run --rm -v $(pwd):/app -w /app php:cli php index.php
+</code></pre></div></div>
+
+<p>Now you have multiple options for loading environmental variables in PHP using
+Docker containers.</p>
+:ET

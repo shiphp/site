@@ -1,0 +1,210 @@
+I"^C<p>Have you ever been confused by the difference between “private” and “protected” properties in PHP? Do you have to declare all your properties as “public”? What would you use a “private” method for?</p>
+
+<p>If you’ve ever had questions about method or property visibility in PHP, read on. I hope this post will improve your understanding of</p>
+
+<p><img src="https://i.imgur.com/h21Mra9.jpg" alt="" /></p>
+
+<h2 id="classes-in-php">Classes in PHP</h2>
+
+<p>Before jumping into visibility, you <a href="https://www.shiphp.com/blog/2017/classes-php">should know a little about PHP classes</a>. Classes allow you to specify the methods and properties of an object before it’s created. Each of these methods and properties (called “members”) has what’s called “visibility”, a setting that determines whether or not other parts of your code can access the member.</p>
+
+<h2 id="what-is-the-difference-between-private-protected-and-public-keywords">What is the difference between “private”, “protected”, and “public” keywords?</h2>
+
+<p>The difference between the three visibility settings is spelled out in <a href="http://php.net/manual/en/language.oop5.visibility.php">the PHP Docs</a>:</p>
+
+<blockquote>
+  <p>Class members declared public can be accessed everywhere. Members declared protected can be accessed only within the class itself and by inheriting and parent classes. Members declared as private may only be accessed by the class that defines the member.</p>
+</blockquote>
+
+<p>But what does this look like in practice? Let’s look at an example:</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+
+<span class="kd">class</span> <span class="nc">Animal</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="nv">$sound</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+    <span class="k">protected</span> <span class="nv">$legs</span> <span class="o">=</span> <span class="mi">4</span><span class="p">;</span>
+    <span class="k">private</span> <span class="nv">$stomachs</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">class</span> <span class="nc">Cow</span> <span class="kd">extends</span> <span class="nc">Animal</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="nv">$sound</span> <span class="o">=</span> <span class="s1">'Moo'</span><span class="p">;</span>
+    <span class="k">private</span> <span class="nv">$stomachs</span> <span class="o">=</span> <span class="mi">4</span><span class="p">;</span>
+
+    <span class="k">public</span> <span class="k">function</span> <span class="n">__construct</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="k">echo</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">sound</span> <span class="mf">.</span> <span class="kc">PHP_EOL</span><span class="p">;</span>
+        <span class="k">echo</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">stomachs</span> <span class="mf">.</span> <span class="kc">PHP_EOL</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nv">$bessie</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Cow</span><span class="p">();</span>
+
+<span class="k">echo</span> <span class="nv">$bessie</span><span class="o">-&gt;</span><span class="n">sound</span><span class="p">;</span>
+<span class="k">echo</span> <span class="nv">$bessie</span><span class="o">-&gt;</span><span class="n">stomachs</span><span class="p">;</span>
+
+</code></pre></div></div>
+
+<p>When you run the above code in PHP, you will get the output:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Moo
+4
+Moo
+Fatal error: Uncaught Error: Cannot access private property Cow::<span class="nv">$stomachs</span> <span class="k">in </span>classes.php:25
+</code></pre></div></div>
+
+<p>This error is telling you that you can’t access one of the properties you tried to call. This is because <code class="highlighter-rouge">$stomachs</code> is private, meaning <em>it’s only available inside the class that contains it</em>. That’s why the first time you called <code class="highlighter-rouge">$this-&gt;sound</code> (inside the <code class="highlighter-rouge">Cow</code> class) it worked, but the second time caused a fatal error.</p>
+
+<p>Private methods are handled the same way. For example this code:</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+
+<span class="kd">class</span> <span class="nc">Animal</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="nv">$sound</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+    <span class="k">protected</span> <span class="nv">$legs</span> <span class="o">=</span> <span class="mi">4</span><span class="p">;</span>
+    <span class="k">private</span> <span class="nv">$stomachs</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">class</span> <span class="nc">Cow</span> <span class="kd">extends</span> <span class="nc">Animal</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="nv">$sound</span> <span class="o">=</span> <span class="s1">'Moo'</span><span class="p">;</span>
+    <span class="k">private</span> <span class="nv">$stomachs</span> <span class="o">=</span> <span class="mi">4</span><span class="p">;</span>
+
+    <span class="k">public</span> <span class="k">function</span> <span class="n">__construct</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="k">echo</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">sound</span> <span class="mf">.</span> <span class="kc">PHP_EOL</span><span class="p">;</span>
+        <span class="k">echo</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">stomachs</span> <span class="mf">.</span> <span class="kc">PHP_EOL</span><span class="p">;</span>
+    <span class="p">}</span>
+    
+    <span class="k">private</span> <span class="k">function</span> <span class="n">getStomachs</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">stomachs</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nv">$bessie</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Cow</span><span class="p">();</span>
+
+<span class="k">echo</span> <span class="nv">$bessie</span><span class="o">-&gt;</span><span class="n">sound</span><span class="p">;</span>
+<span class="k">echo</span> <span class="nv">$bessie</span><span class="o">-&gt;</span><span class="nf">getStomachs</span><span class="p">();</span>
+
+</code></pre></div></div>
+
+<p>Will output a fatal error as well. But what if we make the <code class="highlighter-rouge">getStomachs()</code> method <code class="highlighter-rouge">public</code>? This code should work:</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+
+<span class="kd">class</span> <span class="nc">Animal</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="nv">$sound</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+    <span class="k">protected</span> <span class="nv">$legs</span> <span class="o">=</span> <span class="mi">4</span><span class="p">;</span>
+    <span class="k">private</span> <span class="nv">$stomachs</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">class</span> <span class="nc">Cow</span> <span class="kd">extends</span> <span class="nc">Animal</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="nv">$sound</span> <span class="o">=</span> <span class="s1">'Moo'</span><span class="p">;</span>
+    <span class="k">private</span> <span class="nv">$stomachs</span> <span class="o">=</span> <span class="mi">4</span><span class="p">;</span>
+
+    <span class="k">public</span> <span class="k">function</span> <span class="n">__construct</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="k">echo</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">sound</span> <span class="mf">.</span> <span class="kc">PHP_EOL</span><span class="p">;</span>
+        <span class="k">echo</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">stomachs</span> <span class="mf">.</span> <span class="kc">PHP_EOL</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="k">function</span> <span class="n">getStomachs</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">stomachs</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nv">$bessie</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Cow</span><span class="p">();</span>
+
+<span class="k">echo</span> <span class="nv">$bessie</span><span class="o">-&gt;</span><span class="n">sound</span> <span class="mf">.</span> <span class="kc">PHP_EOL</span><span class="p">;</span>
+<span class="k">echo</span> <span class="nv">$bessie</span><span class="o">-&gt;</span><span class="nf">getStomachs</span><span class="p">()</span> <span class="mf">.</span> <span class="kc">PHP_EOL</span><span class="p">;</span>
+
+</code></pre></div></div>
+
+<p>Giving us the sound and number of stomachs twice with no fatal errors:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Moo
+4
+Moo
+4
+</code></pre></div></div>
+
+<p>This pattern is used in <a href="https://stackoverflow.com/questions/12092583/oop-should-all-properties-have-getters-and-setters">creating getters and setters</a>, which make class properties private and force callers to use public methods to access them. While not necessarily a good pattern, this is pretty common in some languages and frameworks.</p>
+
+<h3 id="but-what-about-protected">But what about “protected”?</h3>
+
+<p>I have glossed over the “protected” visibility because it’s a little more complicated. While “private” members cannot be accessed by any code outside the class, “protected” members can be accessed by classes that extend your class. For example, the following code would generate a fatal error:</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+
+<span class="kd">class</span> <span class="nc">Animal</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="nv">$sound</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+    <span class="k">protected</span> <span class="nv">$legs</span> <span class="o">=</span> <span class="mi">4</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">class</span> <span class="nc">Cow</span> <span class="kd">extends</span> <span class="nc">Animal</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="nv">$sound</span> <span class="o">=</span> <span class="s1">'Moo'</span><span class="p">;</span>
+
+    <span class="k">public</span> <span class="k">function</span> <span class="n">__construct</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="k">echo</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">sound</span> <span class="mf">.</span> <span class="kc">PHP_EOL</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nv">$bessie</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Cow</span><span class="p">();</span>
+
+<span class="k">echo</span> <span class="nv">$bessie</span><span class="o">-&gt;</span><span class="n">sound</span><span class="mf">.</span> <span class="kc">PHP_EOL</span><span class="p">;</span>
+<span class="k">echo</span> <span class="nv">$bessie</span><span class="o">-&gt;</span><span class="n">legs</span><span class="mf">.</span> <span class="kc">PHP_EOL</span><span class="p">;</span>
+
+</code></pre></div></div>
+
+<p>The reason is that the “protected” property <code class="highlighter-rouge">$legs</code> can only be accessed by the <code class="highlighter-rouge">Cow</code> class. This code should work:</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+
+<span class="kd">class</span> <span class="nc">Animal</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="nv">$sound</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+    <span class="k">protected</span> <span class="nv">$legs</span> <span class="o">=</span> <span class="mi">4</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">class</span> <span class="nc">Cow</span> <span class="kd">extends</span> <span class="nc">Animal</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="nv">$sound</span> <span class="o">=</span> <span class="s1">'Moo'</span><span class="p">;</span>
+
+    <span class="k">public</span> <span class="k">function</span> <span class="n">__construct</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="k">echo</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">sound</span> <span class="mf">.</span> <span class="kc">PHP_EOL</span><span class="p">;</span>
+        <span class="k">echo</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">legs</span> <span class="mf">.</span> <span class="kc">PHP_EOL</span><span class="p">;</span>
+    <span class="p">}</span>
+    
+    <span class="k">public</span> <span class="k">function</span> <span class="n">getLegs</span><span class="p">()</span>
+    <span class="p">{</span> 
+        <span class="k">return</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="n">legs</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nv">$bessie</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Cow</span><span class="p">();</span>
+
+<span class="k">echo</span> <span class="nv">$bessie</span><span class="o">-&gt;</span><span class="n">sound</span><span class="mf">.</span> <span class="kc">PHP_EOL</span><span class="p">;</span>
+<span class="k">echo</span> <span class="nv">$bessie</span><span class="o">-&gt;</span><span class="nf">getLegs</span><span class="p">()</span><span class="mf">.</span> <span class="kc">PHP_EOL</span><span class="p">;</span>
+
+</code></pre></div></div>
+
+<p>Protected properties are useful when you want to extend a base class, but you may want to overload a method or property value. Be careful because <a href="http://php.net/manual/en/language.oop5.overloading.php">overloading</a> may be a code smell, so if you find you’re always overloading certain methods in a base class, it may be better to implement new methods in the child classes instead.</p>
+
+<h2 id="when-should-you-use-them">When should you use them?</h2>
+
+<p>The trickiest part of these visibility keywords is knowing when to use each of them. Because “private” visibility is the safest, it’s probably best to initially set class members to private <em>unless</em> you know they’ll be used by external callers. Giving limited access to modify properties prevents you (and other developers who use your code) from changing a property somewhere they shouldn’t.</p>
+
+<p>While defaulting to “private” may work, you obviously can’t get much work done without allowing outside access to your classes. When you know a member will be accessed by child classes, you will have to use “protected” visibility, and when the property or method is intended to be part of the class’s public API, its visibility should be “public”.</p>
+
+<p>I’ve found that most classes should have just one or two “public” methods, zero to two “protected” methods, and lots of very small “private” methods. Almost all properties should be “private” or “protected” unless the class is a <a href="https://en.wikipedia.org/wiki/Data_transfer_object">data transfer object</a>. This forces developers to think of each class as doing just one or two related things, and not calling internal private methods without very good reason.</p>
+
+<p>What tips do you have for class member visibility in PHP? <a href="https://twitter.com/shiphpnow">Let me hear your thoughts on Twitter</a>.</p>
+:ET

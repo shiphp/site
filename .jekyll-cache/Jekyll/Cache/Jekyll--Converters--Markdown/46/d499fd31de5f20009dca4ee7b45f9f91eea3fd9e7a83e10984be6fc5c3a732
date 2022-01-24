@@ -1,0 +1,121 @@
+I"b<p><img src="https://i.imgur.com/NSVvPKQ.png" alt="" /></p>
+
+<p>My favorite PHP framework for the past few years has been
+<a href="https://laravel.com/">Laravel</a>. It combines modern best practices with
+developer-friendly tools and pretty much all the common components that web
+developers need.</p>
+
+<p>There are already several good ways to set up a local development environment
+for Laravel including <a href="https://laravel.com/docs/5.4/homestead">Homestead</a> and
+<a href="https://laravel.com/docs/5.4/valet">Valet</a>, but if you’re interested in using
+Docker instead read on.</p>
+
+<h3 id="starting-a-database-container">Starting a Database Container</h3>
+
+<p>Most Laravel applications require a database for storage, and since PHP
+developers tend to use MySQL, let’s start up a MySQL database container.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run -d --name database -e 
+=admin -e 
+=4gdlylp21 -e MYSQL_RANDOM_ROOT_PASSWORD=true -e 
+ mysql:5
+</code></pre></div></div>
+
+<p>This command is covered in more detail in a previous post on <a href="https://www.shiphp.com/blog/2017/php-mysql-docker">using MySQL and
+PHP with
+Docker</a>,
+so check that out if you’re new at this.</p>
+
+<h3 id="installing-laravel-with-a-composer-container">Installing Laravel with a Composer Container</h3>
+
+<p>Next we need to install Laravel, but since we’re trying to do things the Docker
+way, we’ll use a Composer container and mounted volume to create the project.
+Just run this command in your terminal to create a new Laravel project:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run -v $(pwd):/app composer create-project --prefer-dist laravel/laravel laravel-docker
+</code></pre></div></div>
+
+<p>You should now see a folder called <code class="highlighter-rouge">laravel-docker</code> in your current directory.
+Navigate to that folder and type <code class="highlighter-rouge">ls</code> to see all the Laravel files:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>app  composer.lock phpunit.xml routes  vendor
+
+artisan  config  public  server.php webpack.mix.js
+
+bootstrap database readme.md storage
+
+composer.json package.json resources tests
+</code></pre></div></div>
+
+<h3 id="configuring-laravel">Configuring Laravel</h3>
+
+<p>Because we’re going to use Apache as our webserver and we want to connect to the
+database container we just created, there is some custom configuration to set
+up. First, create a <code class="highlighter-rouge">.htaccess</code> file at the root of your new Laravel
+installation:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;IfModule mod_rewrite.c&gt;
+    RewriteEngine on
+    RewriteCond %{REQUEST_URI} !^public
+    RewriteRule ^(.*)$ public/$1 [L]
+&lt;/IfModule&gt;
+</code></pre></div></div>
+
+<p>This will ensure that Laravel serves up the <code class="highlighter-rouge">/public</code> directory instead of the
+root directory.</p>
+
+<p>Next, update your <code class="highlighter-rouge">.env</code> file with the database credentials you set when
+creating the database container:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>DB_CONNECTION=mysql
+DB_HOST=database
+DB_PORT=3306
+DB_DATABASE=laravel
+DB_USERNAME=admin
+DB_PASSWORD=4gdlylp21
+</code></pre></div></div>
+
+<h3 id="the-laravel-application-container">The Laravel Application Container</h3>
+
+<p>Next we want to run a PHP container. The easiest way to get a PHP project
+started in Docker is to use one of the <a href="https://hub.docker.com/_/php/">official images on Docker
+hub</a>, but because we need some additional
+extensions installed, we’re going to use a Docker image <a href="https://hub.docker.com/r/karllhughes/php-apache-mysql/">I created specifically
+for running LAMP stack applications on
+Docker</a>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run --rm --name laravel-docker --link database -v $(pwd):/var/www/html -p 8080:80 karllhughes/php-apache-mysql
+</code></pre></div></div>
+
+<p>Once you’ve run the above command navigate your browser to <code class="highlighter-rouge">localhost:8080/</code>.
+Laravel should be running and you can get started building your application in
+Docker containers!</p>
+
+<h4 id="whats-going-on-here">What’s going on here?</h4>
+
+<ul>
+  <li><code class="highlighter-rouge">docker run</code> is the starting point for getting a container running. There are <a href="https://docs.docker.com/engine/reference/run/">a
+lot of options you can pass in</a>,
+but we’ll try to keep it pretty simple for this example.</li>
+  <li><code class="highlighter-rouge">--rm</code> tells Docker to remove the container after you shut it down. This ensures
+you don’t have a bunch of unused containers hanging around.</li>
+  <li><code class="highlighter-rouge">--name laravel-docker</code> is optional, but nice if you run the container in
+detached mode or if you run a lot of containers.</li>
+  <li><code class="highlighter-rouge">--link database</code> connects the Laravel container with your running MySQL
+container.</li>
+  <li><code class="highlighter-rouge">-v $(pwd):/var/www/html</code> mounts the current code into a volume in the
+container. This way you can make updates to the code and immediately see them
+reflected in your application.</li>
+  <li><code class="highlighter-rouge">-p 8080:80</code> tells Docker to link port 8080 on your host machine with the
+running container’s port 80. That’s where Apache is serving the website inside
+the container.</li>
+  <li><code class="highlighter-rouge">karllhughes/php-apache-mysql</code> finally this is the name of the image we’re using
+for this container. I put this image together for running PHP/Apache projects
+with MySQL and all the required extensions.</li>
+</ul>
+
+<p>There’s plenty more you can do with containers to improve your local Laravel
+development process, but as you can see getting started is surprisingly easy.
+With just a couple commands, we’ve got Laravel running and we didn’t even have
+to install any additional software on our local machine.</p>
+:ET

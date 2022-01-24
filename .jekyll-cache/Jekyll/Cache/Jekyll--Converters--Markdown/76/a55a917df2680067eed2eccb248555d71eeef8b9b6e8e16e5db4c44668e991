@@ -1,0 +1,13 @@
+I"y<p>We are excited to announce the release of our first eBook, <a href="/books#building-php-applications-in-docker"><em>Building PHP Applications in Docker: A Step By Step Guide for PHP Developers Learning Docker</em></a>. The book covers a wide range of topics including:</p>
+
+<ul>
+  <li>Installing dependencies using Composer.</li>
+  <li>Getting data from a third-party API.</li>
+  <li>Saving data to a database.</li>
+  <li>Using a web framework for routing.</li>
+  <li>Storing environmental variables securely using a .env file.</li>
+  <li>And much more!</li>
+</ul>
+
+<p>You can read more abou the book and download a copy <strong>for free</strong> for a limited time from <a href="/books">our books page</a>. Be sure to let us know what you think about the book and what you’d like to see covered in future editions by reaching out through our <a href="/contact">contact page</a>.</p>
+:ET

@@ -1,0 +1,116 @@
+I"	<p>The first exposure I had to PHP code was <a href="https://wordpress.org/">Wordpress</a>,
+and ever since then the CMS has held a soft spot in my heart. Wordpress is used
+by millions of websites, so knowing how to set up a new instance and run it
+within Docker containers is a valuable skill for PHP developers.</p>
+
+<p>This tutorial will use the <a href="https://hub.docker.com/_/wordpress/">official Wordpress Docker
+image</a> as well as some tricks we learned in
+a previous tutorial about <a href="https://www.shiphp.com/blog/2017/php-mysql-docker">using PHP and MySQL in
+containers</a>.
+Let’s get started!</p>
+
+<h3 id="1-starting-up-a-database-container">1. Starting up a Database Container</h3>
+
+<p>Before we run Wordpress, let’s get a MySQL instance started so we can link it to
+our Wordpress container. As we explained in <a href="https://www.shiphp.com/blog/2017/php-mysql-docker">a previous
+tutorial</a>,
+we’ll use MySQL 5 and a non-root user for the database. The only additional
+option we are passing in for this example is a database name (see <code class="highlighter-rouge">-e
+MYSQL_DATABASE=wordpress</code>).</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run -d --name database -e 
+=admin -e 
+=P^RKvF -e MYSQL_RANDOM_ROOT_PASSWORD=true -e 
+ mysql:5
+</code></pre></div></div>
+
+<p>MySQL is now running, and you can verify it by running <code class="highlighter-rouge">docker ps</code>.</p>
+
+<h3 id="2-running-wordpress">2. Running Wordpress</h3>
+
+<p>Installing Wordpress normally means downloading the core library, updating
+configuration files, and setting up a webserver, but Docker makes this process
+into a one-line command!</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run --rm --name wp-local --link database:mysql -e WORDPRESS_DB_USER=admin -e WORDPRESS_DB_PASSWORD=P^RKvF -e WORDPRESS_DB_NAME=wordpress -p 8080:80 wordpress
+</code></pre></div></div>
+
+<p>When you run the above command, you should see some terminal output, but once
+that slows down, head over to <code class="highlighter-rouge">http://localhost:8080/</code> and check it out.
+Wordpress is ready to finish its installation.</p>
+
+<p><img src="https://i.imgur.com/ntev38S.png" alt="" /></p>
+
+<p><em>Once the Wordpress container is started you can complete the installation at
+http://localhost:8080</em></p>
+
+<h4 id="whats-going-on-here">What’s going on here?</h4>
+
+<p>Let’s dig into this Docker command in more detail so you can optimize it for
+your own use later.</p>
+
+<ul>
+  <li><code class="highlighter-rouge">docker run</code> is Docker’s command to run a new container.</li>
+  <li><code class="highlighter-rouge">--rm</code> will remove the container after it shuts down. Note that if you don’t
+save your files in a volume, you may want to keep the container so you can
+restart it later.</li>
+  <li><code class="highlighter-rouge">--name wp-local</code> is a name for this container. You can choose anything you
+like, but it helps us identify the container if we want to log into it later.</li>
+  <li><code class="highlighter-rouge">--link database:mysql</code> tells the new Wordpress container to link to the
+existing <code class="highlighter-rouge">database</code> container, but to map it to the hostname <code class="highlighter-rouge">mysql</code>. This is
+the default database host name.</li>
+  <li><code class="highlighter-rouge">-e WORDPRESS_DB_USER=... -e WORDPRESS_DB_PASSWORD=... -e WORDPRESS_DB_NAME=...</code>
+sets environmental variables for our database connection in the Wordpress
+container. You could also use a <code class="highlighter-rouge">.env</code> file (see <a href="https://www.shiphp.com/blog/2017/env-php-docker">section 2 in this
+article</a>
+for details).</li>
+  <li><code class="highlighter-rouge">wordpress</code> is the name of the official Docker image for Wordpress. More
+environmental options can be found in <a href="https://hub.docker.com/_/wordpress/">their documentation on Docker
+Hub</a>.</li>
+</ul>
+
+<h3 id="3-advanced-usage">3. Advanced Usage</h3>
+
+<p>Now that you’ve got a simple example running, you can shut it down and set some
+advanced options.</p>
+
+<h4 id="running-the-container-in-detached-mode">Running the Container in Detached Mode</h4>
+
+<p>To run the above Docker <code class="highlighter-rouge">run</code> command in “detached” mode (meaning you can do
+other things in your terminal while it’s running, simply add the <code class="highlighter-rouge">-d</code> flag
+anywhere to your <code class="highlighter-rouge">docker run</code> command. For example:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run --rm --name wp-local --link database:mysql -e WORDPRESS_DB_USER=admin -e WORDPRESS_DB_PASSWORD=P^RKvF -e WORDPRESS_DB_NAME=wordpress -p 8080:80 wordpress
+</code></pre></div></div>
+
+<h4 id="using-a-volume-for-file-uploads">Using a Volume for File Uploads</h4>
+
+<p>You may be wondering what happens if a user uploads a file. Well, the file gets
+uploaded to the container, but it’s not visible anywhere in your host system. We
+can fix that by mounting Wordpress’ file upload directory as a volume:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run -d --rm --name wp-local --link database:mysql -v $(pwd)/wp-content/uploads:/var/www/html/wp-content/uploads -e WORDPRESS_DB_USER=admin -e WORDPRESS_DB_PASSWORD=P^RKvF -e WORDPRESS_DB_NAME=wordpress -p 8080:80 wordpress
+</code></pre></div></div>
+
+<p>The new part of this command mounts a volume from our local filesystem into the
+Wordpress container and vice-versa. Now when we upload a file in our local
+Wordpress instance it should show up in the <code class="highlighter-rouge">/wp-content/uploads</code> directory on
+our host machine.</p>
+
+<h4 id="using-a-volume-for-plugins-and-themes">Using a Volume for Plugins and Themes</h4>
+
+<p>Similarly, we can mount the whole <code class="highlighter-rouge">wp-content</code> directory to keep plugins,
+themes, and uploads synced on our local machine and in our container. It just
+takes a slight modification to the above command:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run -d --rm --name wp-local --link database:mysql -v $(pwd)/wp-content:/var/www/html/wp-content -e WORDPRESS_DB_USER=admin -e WORDPRESS_DB_PASSWORD=P^RKvF -e WORDPRESS_DB_NAME=wordpress -p 8080:80 wordpress
+</code></pre></div></div>
+
+<p>Now any changes we make to any plugins on our local system or any new themes we
+add will show up in the running Wordpress container.</p>
+
+<p>As you can see, this method of setup can actually make installing and
+configuring new instances of Wordpress much faster and even safer. Because devs
+cannot modify core files, it can prevent consistency problems and make upgrading
+Wordpress simpler.</p>
+:ET

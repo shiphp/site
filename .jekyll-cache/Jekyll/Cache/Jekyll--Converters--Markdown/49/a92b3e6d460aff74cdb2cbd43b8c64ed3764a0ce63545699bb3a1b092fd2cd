@@ -1,0 +1,93 @@
+I"�<p><img src="https://i.imgur.com/RnnJprN.png" alt="" /></p>
+
+<p>Testing your code is a great way to improve quality and minimize <a href="https://en.wikipedia.org/wiki/Software_regression">bugs due to
+regression</a>. PHP has a couple
+frameworks available for unit testing, but the most popular by far is
+<a href="https://phpunit.de/">PHPUnit</a>. Because unit tests are going to be run on a
+variety of environments, running tests within Docker containers can make tests
+faster and more portable. This tutorial will walk you through setting up a PHP
+application with unit tests that can be run in Docker.</p>
+
+<h3 id="1-setting-up-a-php-class-to-test">1. Setting up a PHP Class to Test</h3>
+
+<p>First let’s create a simple PHP class in a file called <code class="highlighter-rouge">ExampleClass.php</code>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+<span class="kd">class</span> <span class="nc">ExampleClass</span> <span class="p">{</span>
+    <span class="k">function</span> <span class="n">addOne</span><span class="p">(</span><span class="kt">int</span> <span class="nv">$number</span><span class="p">):</span> <span class="kt">int</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nv">$number</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>This class has one function called <code class="highlighter-rouge">addOne</code> that will simply add <code class="highlighter-rouge">1</code> to an
+integer when passed in.</p>
+
+<h3 id="2-installing-phpunit">2. Installing PHPUnit</h3>
+
+<p>Next, let’s install and configure PHPUnit to test this class. Because we’re
+using Docker, we’ll install PHPUnit via <a href="https://www.shiphp.com/blog/2017/composer-php-docker">Composer in a
+container</a>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run --rm -v $(pwd):/app composer/composer:latest require --dev phpunit/phpunit ^6.0
+</code></pre></div></div>
+
+<p>This will install version 6.0 of PHPUnit into our directory’s new <code class="highlighter-rouge">vendor</code>
+folder.</p>
+
+<h3 id="3-writing-a-unit-test">3. Writing a Unit Test</h3>
+
+<p>I won’t go into detail on <a href="https://stackoverflow.com/questions/3258733/new-to-unit-testing-how-to-write-great-tests">how to write good unit
+tests</a>,
+but let’s look at a simple test we might do based on the simple class above:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+<span class="kn">use</span> <span class="nc">PHPUnit\Framework\TestCase</span><span class="p">;</span>
+<span class="kd">class</span> <span class="nc">ExampleTest</span> <span class="kd">extends</span> <span class="nc">TestCase</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="n">testItCanAddOneToInteger</span><span class="p">():</span> <span class="kt">void</span>
+    <span class="p">{</span>
+        <span class="nv">$exampleClass</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ExampleClass</span><span class="p">();</span>
+        <span class="nv">$input</span> <span class="o">=</span> <span class="nb">rand</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">100</span><span class="p">);</span>
+        <span class="nv">$result</span> <span class="o">=</span> <span class="nv">$exampleClass</span><span class="o">-&gt;</span><span class="nf">addOne</span><span class="p">(</span><span class="nv">$input</span><span class="p">);</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="nf">assertEquals</span><span class="p">(</span><span class="nv">$input</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nv">$result</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>This test is stored in a file called <code class="highlighter-rouge">ExampleTest.php</code> in the same directory as
+the class we’re testing. Typically, you’ll want to put your application files in
+a different directory from your tests, but since this is a simple example,
+everything is in the root directory.</p>
+
+<p>In the function <code class="highlighter-rouge">testItCanAddOneToInteger</code>, we instantiate the <code class="highlighter-rouge">ExampleClass</code>,
+get a random number, call the <code class="highlighter-rouge">addOne</code> method, and then assert that the result
+is correct.</p>
+
+<h3 id="4-running-unit-tests">4. Running Unit Tests</h3>
+
+<p>Finally, to run a unit test you need to make PHPUnit aware of your code files
+and test files. The best way to do that in a large application is using
+<a href="https://phpunit.de/manual/current/en/organizing-tests.html#organizing-tests.xml-configuration">PHPUnit’s XML configuration
+file</a>,
+but since this is a very simple example, we’ll just use the command line
+interface.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run -v $(pwd):/app --rm phpunit/phpunit:latest --bootstrap ExampleClass.php ExampleTest.php
+</code></pre></div></div>
+
+<p>This docker command runs the latest version of PHPUnit and uses the
+<code class="highlighter-rouge">--bootstrap</code> flag to tell it which files it needs. If everything was done
+correctly, you should see something like this in your terminal output:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>PHPUnit 6.0.13 by Sebastian Bergmann, Julien Breux (Docker) and contributors.
+
+.                                                                   1 / 1 (100%)
+
+Time: 77 ms, Memory: 2.00MB
+
+OK (1 test, 1 assertion)
+</code></pre></div></div>
+
+<p>This indicates that one unit test was run and that it passed.</p>
+:ET

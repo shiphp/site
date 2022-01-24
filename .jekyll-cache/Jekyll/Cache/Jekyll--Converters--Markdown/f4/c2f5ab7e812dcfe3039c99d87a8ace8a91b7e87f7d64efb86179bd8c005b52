@@ -1,0 +1,73 @@
+I"%<p><img src="https://i.imgur.com/w9R6Goe.jpg" alt="" /></p>
+
+<p>While the <code class="highlighter-rouge">switch</code> statement isn’t as popular as <a href="https://www.shiphp.com/blog/2017/php-conditional-operators">conditional
+operators</a>
+like <code class="highlighter-rouge">if</code> and <code class="highlighter-rouge">elseif</code> in PHP, it can still be useful when evaluating a number
+of possible outcomes. Using a <code class="highlighter-rouge">switch</code> statement is pretty simple, so let’s look
+at an example:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+<span class="nv">$var</span> <span class="o">=</span> <span class="nb">rand</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">);</span>
+<span class="k">switch</span><span class="p">(</span><span class="nv">$var</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="mi">1</span><span class="o">:</span>
+        <span class="k">echo</span> <span class="s2">"The magic number is one."</span><span class="p">;</span>
+        <span class="k">break</span><span class="p">;</span>
+    <span class="k">default</span><span class="o">:</span>
+        <span class="k">echo</span> <span class="s2">"The magic number is unknown."</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>This script will output either <code class="highlighter-rouge">The magic number is unknown.</code> or <code class="highlighter-rouge">The magic
+number is one.</code> depending on what random number is generated.</p>
+
+<ul>
+  <li>The <code class="highlighter-rouge">switch($var)</code> line determines the variable to be evaluated.</li>
+  <li>The <code class="highlighter-rouge">case 1:</code> block will be run if the variable being evaluated equals <code class="highlighter-rouge">1</code>. Note
+that this uses <a href="http://php.net/manual/en/types.comparisons.php#types.comparisions-loose">loose
+comparisons</a>,
+meaning that <code class="highlighter-rouge">1</code> or <code class="highlighter-rouge">"1"</code> will evaluate to true in this case.</li>
+  <li><code class="highlighter-rouge">break;</code> is a stopping point for each case’s block. This ensures that the next
+block (either another <code class="highlighter-rouge">case</code> or <code class="highlighter-rouge">default</code> block) will not run.</li>
+  <li>Finally <code class="highlighter-rouge">default:</code> will be evaluated if none of the <code class="highlighter-rouge">case</code> statements was true.</li>
+</ul>
+
+<h3 id="a-more-advanced-example">A More Advanced Example</h3>
+
+<p>You can extend the logic from our first example to more complex statements and
+cases.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+<span class="nv">$var</span> <span class="o">=</span> <span class="nb">rand</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">5</span><span class="p">);</span>
+<span class="k">switch</span><span class="p">(</span><span class="nv">$var</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="mi">1</span><span class="o">:</span>
+        <span class="k">echo</span> <span class="s2">"The magic number is one."</span><span class="p">;</span>
+        <span class="k">break</span><span class="p">;</span>
+    <span class="k">case</span> <span class="mi">2</span><span class="o">:</span>
+        <span class="k">echo</span> <span class="s2">"The magic number is two."</span><span class="p">;</span>
+        <span class="k">break</span><span class="p">;</span>
+    <span class="k">case</span> <span class="nv">$var</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="o">:</span>
+        <span class="k">echo</span> <span class="s2">"The magic number is too big!"</span><span class="p">;</span>
+    <span class="k">default</span><span class="o">:</span>
+        <span class="k">echo</span> <span class="s2">"The magic number is unknown."</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>This time, we’re evaluating a random number between <code class="highlighter-rouge">0</code> and <code class="highlighter-rouge">5</code> inclusive. The
+first two <code class="highlighter-rouge">case</code> statements work the same as above, but the third one is a
+little different. It evaluates whether the number is greater than <code class="highlighter-rouge">2</code> and if so
+it says the number is <code class="highlighter-rouge">too big!</code>. You may also notice that there’s no <code class="highlighter-rouge">break;</code>
+statement, meaning that if <code class="highlighter-rouge">case $var &gt; 2</code> is reached it will continue on to the
+<code class="highlighter-rouge">default:</code> statement as well. So your output might look like any one of the
+following:</p>
+
+<ul>
+  <li>If <code class="highlighter-rouge">$var == 1</code>: <code class="highlighter-rouge">The magic number is one.</code></li>
+  <li>If <code class="highlighter-rouge">$var == 2</code>: <code class="highlighter-rouge">The magic number is two.</code></li>
+  <li>If <code class="highlighter-rouge">$var == 3,4,5</code>: <code class="highlighter-rouge">The magic number is too big! The magic number is unknown.</code></li>
+  <li>If <code class="highlighter-rouge">$var == 0</code>: <code class="highlighter-rouge">The magic number is unknown.</code></li>
+</ul>
+
+<p>As you can see, <code class="highlighter-rouge">switch</code> statements can be used to perform logical operations
+that would be cumbersome using only embedded <code class="highlighter-rouge">if</code> statements. They also tend to
+be more readable when you have lots of potential scenarios.</p>
+:ET

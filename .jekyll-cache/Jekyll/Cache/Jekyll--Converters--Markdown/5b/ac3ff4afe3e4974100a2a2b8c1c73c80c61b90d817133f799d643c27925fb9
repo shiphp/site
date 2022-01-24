@@ -1,0 +1,70 @@
+I"�<p><img src="https://i.imgur.com/qJXcCqu.png" alt="" /></p>
+
+<p>Using Docker to run <a href="https://www.shiphp.com/blog/2017/php-web-app-in-docker">a simple PHP web
+application</a>
+is one thing, but how hard is it to install and run a small framework like
+<a href="https://www.slimframework.com/">SlimPHP</a> in Docker containers? Let’s try it
+out!</p>
+
+<h3 id="1-installing-slimphp-with-docker-and-composer">1. Installing SlimPHP with Docker and Composer</h3>
+
+<p>First we need to install SlimPHP into a new directory. Their <a href="https://www.slimframework.com/docs/start/installation.html">documented
+installation instructions</a> assume
+that you’ve got Composer installed locally, but since we’re building with
+Docker, we should use a container.</p>
+
+<ul>
+  <li>First, make a new directory, navigate to it in your command line terminal.</li>
+  <li>Next, install SlimPHP using the <a href="https://www.shiphp.com/blog/2017/composer-php-docker">Composer Docker
+container</a>:</li>
+</ul>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run --rm -v $(pwd):/app composer/composer:latest require slim/slim "^3.0"
+</code></pre></div></div>
+
+<p>Now you should see a <code class="highlighter-rouge">vendor/</code> directory as well as a <code class="highlighter-rouge">composer.json</code> and
+<code class="highlighter-rouge">composer.lock</code> file in your project’s root. SlimPHP is now installed and we can
+build a simple application.</p>
+
+<h3 id="2-running-a-slimphp-application">2. Running a SlimPHP Application</h3>
+
+<p>SlimPHP is a microframework, meaning that they don’t include too much more than
+a router, but since we just want to try it out, that’s good enough. <a href="https://www.slimframework.com/docs/objects/application.html">SlimPHP’s
+documentation includes a simple
+application</a>, so
+let’s start with that.</p>
+
+<ul>
+  <li>The application will live in an <code class="highlighter-rouge">index.php</code> file. Once you’ve created the file,
+add the following PHP code to it:</li>
+</ul>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span> <span class="k">require</span> <span class="s1">'vendor/autoload.php'</span><span class="p">;</span>
+<span class="c1">// instantiate the App object</span>
+<span class="nv">$app</span> <span class="o">=</span> <span class="k">new</span> <span class="err">\</span><span class="nf">Slim\App</span><span class="p">();</span>
+<span class="c1">// Add route callbacks</span>
+<span class="nv">$app</span><span class="o">-&gt;</span><span class="nf">get</span><span class="p">(</span><span class="s1">'/'</span><span class="p">,</span> <span class="k">function</span> <span class="p">(</span><span class="nv">$request</span><span class="p">,</span> <span class="nv">$response</span><span class="p">,</span> <span class="nv">$args</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nv">$response</span><span class="o">-&gt;</span><span class="nf">withStatus</span><span class="p">(</span><span class="mi">200</span><span class="p">)</span><span class="o">-&gt;</span><span class="nf">write</span><span class="p">(</span><span class="s1">'Hello World!'</span><span class="p">);</span>
+<span class="p">});</span>
+<span class="c1">// Run application</span>
+<span class="nv">$app</span><span class="o">-&gt;</span><span class="nf">run</span><span class="p">();</span>
+</code></pre></div></div>
+
+<ul>
+  <li>Now we can try running the small PHP application with the <a href="https://www.shiphp.com/blog/2017/php-web-app-in-docker">official PHP/Apache
+container</a>:</li>
+</ul>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run --rm -p 8000:80 -v $(pwd):/var/www/html php:apache
+</code></pre></div></div>
+
+<ul>
+  <li>Navigate to <a href="http://localhost:8000/">http://localhost:8000/</a> and you should see
+the text <code class="highlighter-rouge">Hello World!</code></li>
+</ul>
+
+<p>As you can see, without installing PHP, Composer, or anything besides Docker we
+can get started building a PHP web application on SlimPHP. This makes
+development fast and allows you to quickly share your code with others no matter
+what environment they’re using.</p>
+:ET

@@ -1,0 +1,2 @@
+I"Æ<p>Lately Iâ€™ve been working to deploy a suite of PHP microservices using Docker containers. One of the problems is that our PHP applications are set up to work with PHP-FPM and Nginx (instead of the admittedly simpler <a href="https://www.shiphp.com/blog/2017/php-web-app-in-docker">Apache/PHP setup covered here</a>), so each PHP microservice needs two containers (and by extension, two Docker images): a PHP-FPM container and an NGinx container.</p>
+:ET

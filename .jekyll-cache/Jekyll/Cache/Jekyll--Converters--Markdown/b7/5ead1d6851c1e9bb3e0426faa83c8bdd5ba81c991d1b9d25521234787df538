@@ -1,0 +1,88 @@
+I"n<p><img src="https://i.imgur.com/2dFw58U.jpg" alt="" /></p>
+
+<p>One of the most common operations for any application is to connect to a
+database, but installing multiple databases locally can be a tricky process. You
+have to make sure everyone on your team has the right version and that they’re
+connecting the same way. Fortunately, Docker makes this really simple and more
+transferrable.</p>
+
+<h3 id="1-write-a-php-script-that-connects-to-a-mysql-database">1. Write a PHP Script that Connects to a MySQL Database</h3>
+
+<p>Let’s start by writing a simple PHP script that will connect to a MySQL
+database. All the script is going to do is connect and let us know that the
+connection was successful. This isn’t very exciting, but it’s a starting point
+for any complex PHP and MySQL app.</p>
+
+<h4 id="indexphp">index.php</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span> <span class="nv">$mysqli</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">mysqli</span><span class="p">(</span><span class="s2">"database"</span><span class="p">,</span> <span class="s2">"admin"</span><span class="p">,</span> <span class="s2">"12dlql*41"</span><span class="p">);</span>
+<span class="k">echo</span> <span class="nv">$mysqli</span><span class="o">-&gt;</span><span class="n">server_info</span> <span class="mf">.</span> 
+<span class="p">;</span>
+</code></pre></div></div>
+
+<p>This file connects to a MySQL database using <code class="highlighter-rouge">mysqli</code> and then shows the
+database’s version number in the terminal. Good enough to test things out.</p>
+
+<h3 id="2-start-a-mysql-database-container">2. Start a MySQL Database Container</h3>
+
+<p>Next, we need to start up a MySQL container. When using Docker, you want to
+think about each service or application as its own unique entity, so we need to
+start each container separately. Here’s the Docker command to run a MySQL
+container:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run -d --name database -e 
+=admin -e 
+=12dlql*41 -e MYSQL_RANDOM_ROOT_PASSWORD=true mysql:5
+</code></pre></div></div>
+
+<h4 id="whats-going-on-here">What’s going on here?</h4>
+
+<ul>
+  <li><code class="highlighter-rouge">docker run</code> is Docker’s command to <a href="https://docs.docker.com/engine/reference/run/">run a command within a new
+container</a>.</li>
+  <li><code class="highlighter-rouge">-d</code> tells the container to start in “detached” mode so that we can continue to
+work in the terminal while the container is running.</li>
+  <li><code class="highlighter-rouge">--name database</code> is a name we’ll use to define this container when we reference
+it within our PHP container later.</li>
+  <li><code class="highlighter-rouge">-e MYSQL_USER=admin</code> defines the MySQL user for logging into the server.</li>
+  <li><code class="highlighter-rouge">-e MYSQL_PASSWORD=12dlql*41</code> defines the MySQL password.</li>
+  <li><code class="highlighter-rouge">-e MYSQL_RANDOM_ROOT_PASSWORD=true</code> tells the container to set a strong, random
+<code class="highlighter-rouge">root</code> user password. We don’t want to use the root user for this example, so
+setting it to something random helps keep our database more secure.</li>
+  <li><code class="highlighter-rouge">mysql:5</code> specifies the image to use. More MySQL images are available on <a href="https://hub.docker.com/_/mysql/">Docker
+Hub</a>.</li>
+</ul>
+
+<h3 id="3-run-the-php-script-within-a-container">3. Run the PHP Script Within a Container</h3>
+
+<p>In a previous demo, we covered <a href="https://www.shiphp.com/blog/2017/php-script-in-docker">running a PHP script in a Docker
+container</a>.
+You’ll notice that this Docker run command is different, but after you run it,
+you should see the MySQL version in your command line (something like <code class="highlighter-rouge">5.7.18</code>).</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run --rm -v $(pwd):/app -w /app --link database tommylau/php php index.php
+</code></pre></div></div>
+
+<h4 id="what-does-this-script-do">What does this script do?</h4>
+
+<ul>
+  <li><code class="highlighter-rouge">docker run --rm -v $(pwd):/app -w /app</code> tells docker to create a removable
+container with a mounted volume containing our code in its working directory.
+There are <a href="https://www.shiphp.com/blog/2017/php-script-in-docker">more details in my post on running a PHP script in a Docker
+container</a>.</li>
+  <li><code class="highlighter-rouge">--link database</code> this links the database container we just created with the PHP
+container we’re making now. By default Docker won’t let containers talk to one
+another (which is great for security), but you can specify links using the
+<code class="highlighter-rouge">--link</code> option.</li>
+  <li><code class="highlighter-rouge">tommylau/php</code> instead of using the standard PHP images, I opted to use <a href="https://hub.docker.com/r/tommylau/php/">another
+user’s image</a> because it includes
+support for the PHP MySQLi extension. You could also create your won Dockerfile
+with your own custom extensions, but that’s beyond the scope of this tutorial.</li>
+  <li><code class="highlighter-rouge">php index.php</code> finally this command runs the PHP file that we created above.</li>
+</ul>
+
+<p>While Docker may seem like a new way of thinking about your applications, once
+you learn it, I’ve found that it can be a great asset for writing and testing
+PHP code. Using modifications of the above example you could connect to a
+Postgres database, MariaDB, or pretty much anything else.</p>
+:ET

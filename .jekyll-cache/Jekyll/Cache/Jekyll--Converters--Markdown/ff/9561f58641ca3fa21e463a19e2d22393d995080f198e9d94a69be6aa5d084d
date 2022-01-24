@@ -1,0 +1,2 @@
+I")<p>Once PHP developers get familiar with the basics of local development with Docker, the next thing they always ask me about is deploying their projects. Running containers in production is a complicated problem, and because each project is different, there’s not just one solution that works for everyone. I’ve written before about <a href="https://www.shiphp.com/blog/2017/deploying-php-hyper-sh">using Hyper.sh</a>, but I’ve also used <a href="https://aws.amazon.com/ecs/">Amazon’s EC2</a> and <a href="http://rancher.com/">Rancher</a>.</p>
+:ET

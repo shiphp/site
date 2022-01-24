@@ -1,0 +1,2 @@
+I"<p>If you’ve been <a href="https://www.shiphp.com/blog/2017/phpunit-docker">writing PHPUnit tests</a> for long, you’ve probably run into a time when a test works 90% of the time, but every now and then it throws an unexpected error or failure. If it happens only rarely, you might just get around it by re-running your test suite, but if you’ve got a large test suite or intermittent failures become really common, you probably need to address the issue. Here’s a quick tip for debugging tests like this.</p>
+:ET

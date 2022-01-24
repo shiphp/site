@@ -1,0 +1,125 @@
+I"{2<p>Lately I’ve been working to deploy a suite of PHP microservices using Docker containers. One of the problems is that our PHP applications are set up to work with PHP-FPM and Nginx (instead of the admittedly simpler <a href="https://www.shiphp.com/blog/2017/php-web-app-in-docker">Apache/PHP setup covered here</a>), so each PHP microservice needs two containers (and by extension, two Docker images): a PHP-FPM container and an NGinx container.</p>
+
+<p>The app runs over half a dozen services, so if you multiply that out, it will be 30 or so containers between dev and prod. Rather than build unique NGinx images for each one, I decided to build a single NGinx Docker image that would take the PHP-FPM host name as an environmental variable and run a unique configuration file with it.</p>
+
+<p><img src="https://i.imgur.com/XoCNwnk.jpg" alt="" /></p>
+
+<p>In this blog post, I’ll outline my journey for going from Method 1 to Method 2 above, and finally end it with the solution I came to using a new custom Docker image. I’ve made <a href="https://github.com/shiphp/nginx-env">this image open source</a>, so if this is a problem you’re familiar with, feel free to check that out.</p>
+
+<h2 id="why-nginx">Why NGinx?</h2>
+
+<p>Using NGinx with PHP-FPM <a href="https://blog.a2o.si/2009/06/24/apache-mod_php-compared-to-nginx-php-fpm/">can yield better performance for PHP apps</a>, but the downside is that the <a href="https://hub.docker.com/_/php/">PHP-FPM Docker image</a> isn’t bundled with NGinx by default like the PHP Apache image is. If you want to connect an NGinx container to a PHP-FPM backend, you need to add the DNS record for that backend into your NGinx config. For example, if the PHP-FPM container were running as a container named <code class="highlighter-rouge">php-fpm-api</code>, then your NGinx configuration file should have this in it:</p>
+
+<div class="language-nginx highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="k">location</span> <span class="p">~</span> <span class="sr">\.php$</span> <span class="p">{</span>
+        <span class="kn">fastcgi_split_path_info</span> <span class="s">^(.+</span><span class="err">\</span><span class="s">.php)(/.+)</span>$<span class="p">;</span>
+        <span class="c1"># This line passes requests through to the PHP-FPM container</span>
+        <span class="kn">fastcgi_pass</span> <span class="nf">php-fpm-api</span><span class="p">:</span><span class="mi">9000</span><span class="p">;</span>
+        <span class="kn">fastcgi_index</span> <span class="s">index.php</span><span class="p">;</span>
+        <span class="kn">include</span> <span class="s">fastcgi_params</span><span class="p">;</span>
+        <span class="kn">fastcgi_param</span> <span class="s">SCRIPT_FILENAME</span> <span class="nv">$document_root$fastcgi_script_name</span><span class="p">;</span>
+        <span class="kn">fastcgi_param</span> <span class="s">PATH_INFO</span> <span class="nv">$fastcgi_path_info</span><span class="p">;</span>
+    <span class="p">}</span>
+</code></pre></div></div>
+
+<p>Hard-writing the name of the container into your NGinx config is fine if you’re only serving a single NGinx container, but as I mentioned above, we need to run several NGinx containers - one for each of our PHP services. Creating a new NGinx image (that we later have to maintain and upgrade) would be a pain, and even managing a bunch of different volumes seemed like a lot of work for changing a single variable name.</p>
+
+<h2 id="the-first-solution-use-dockers-documented-method">The first solution: use Docker’s documented method</h2>
+
+<p>Initially, I thought this would be easy. There’s <a href="https://docs.docker.com/samples/library/nginx/#using-environment-variables-in-nginx-configuration">a great little section about how to do this using <code class="highlighter-rouge">envsubst</code> in the Docker docs</a>, but unfortunately, this didn’t work for my NGinx config file:</p>
+
+<h4 id="vhostsconf">vhosts.conf</h4>
+<div class="language-nginx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">server</span> <span class="p">{</span>
+    <span class="kn">listen</span> <span class="mi">80</span><span class="p">;</span>
+    <span class="kn">index</span> <span class="s">index.php</span> <span class="s">index.html</span><span class="p">;</span>
+    <span class="kn">root</span> <span class="n">/var/www/public</span><span class="p">;</span>
+    <span class="kn">client_max_body_size</span> <span class="mi">32M</span><span class="p">;</span>
+
+    <span class="kn">location</span> <span class="n">/</span> <span class="p">{</span>
+        <span class="kn">try_files</span> <span class="nv">$uri</span> <span class="n">/index.php?</span><span class="nv">$args</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="kn">location</span> <span class="p">~</span> <span class="sr">\.php$</span> <span class="p">{</span>
+        <span class="kn">fastcgi_split_path_info</span> <span class="s">^(.+</span><span class="err">\</span><span class="s">.php)(/.+)</span>$<span class="p">;</span>
+        <span class="kn">fastcgi_pass</span> $<span class="p">{</span><span class="kn">NGINX_HOST</span><span class="err">}</span><span class="p">:</span><span class="mi">9000</span><span class="p">;</span>
+        <span class="kn">fastcgi_index</span> <span class="s">index.php</span><span class="p">;</span>
+        <span class="kn">include</span> <span class="s">fastcgi_params</span><span class="p">;</span>
+        <span class="kn">fastcgi_param</span> <span class="s">SCRIPT_FILENAME</span> <span class="nv">$document_root$fastcgi_script_name</span><span class="p">;</span>
+        <span class="kn">fastcgi_param</span> <span class="s">PATH_INFO</span> <span class="nv">$fastcgi_path_info</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>My <code class="highlighter-rouge">vhosts.conf</code> file takes advantage of several <a href="http://nginx.org/en/docs/varindex.html">built in NGinx variables</a>, so when I ran the Docker command outlined in the docs (<code class="highlighter-rouge">/bin/bash -c "envsubst &lt; /etc/nginx/conf.d/mysite.template &gt; /etc/nginx/conf.d/default.conf &amp;&amp; nginx -g 'daemon off;'"</code>), I got errors complaining that <code class="highlighter-rouge">$uri</code> and <code class="highlighter-rouge">$fastcgi_script_name</code> weren’t defined. These variables are normally passed in by NGinx, so I couldn’t easily figure out what they were and pass them in myself, plus that would make my container less dynamic.</p>
+
+<h2 id="another-docker-image-to-the-rescuealmost">Another Docker image to the rescue…almost</h2>
+
+<p>Next, I went searching for a different NGinx base image. Two came up, but neither had been updated in a couple years. I started with <a href="https://hub.docker.com/r/martin/nginx/">martin/nginx</a>, and tried to see if I could get a prototype working.</p>
+
+<p>Martin’s image is a little bit unconventional because it requires a specific folder structure. In the root, I added a <code class="highlighter-rouge">Dockerfile</code>:</p>
+
+<div class="language-Dockerfile highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">FROM</span><span class="s"> martin/nginx</span>
+</code></pre></div></div>
+
+<p>Next, I added an <code class="highlighter-rouge">app/</code> directory that was empty and a <code class="highlighter-rouge">conf/</code> directory with a single file called <code class="highlighter-rouge">vhosts.conf</code>:</p>
+
+<div class="language-nginx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">server</span> <span class="p">{</span>
+    <span class="kn">listen</span> <span class="mi">80</span><span class="p">;</span>
+    <span class="kn">index</span> <span class="s">index.php</span> <span class="s">index.html</span><span class="p">;</span>
+    <span class="kn">root</span> <span class="n">/var/www/public</span><span class="p">;</span>
+    <span class="kn">client_max_body_size</span> <span class="mi">32M</span><span class="p">;</span>
+
+    <span class="kn">location</span> <span class="n">/</span> <span class="p">{</span>
+        <span class="kn">try_files</span> <span class="nv">$uri</span> <span class="n">/index.php?</span><span class="nv">$args</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="kn">location</span> <span class="p">~</span> <span class="sr">\.php$</span> <span class="p">{</span>
+        <span class="kn">fastcgi_split_path_info</span> <span class="s">^(.+</span><span class="err">\</span><span class="s">.php)(/.+)</span>$<span class="p">;</span>
+        <span class="kn">fastcgi_pass</span> <span class="nv">$ENV</span><span class="p">{</span><span class="kn">"NGINX_HOST"</span><span class="err">}</span><span class="p">:</span><span class="mi">9000</span><span class="p">;</span>
+        <span class="kn">fastcgi_index</span> <span class="s">index.php</span><span class="p">;</span>
+        <span class="kn">include</span> <span class="s">fastcgi_params</span><span class="p">;</span>
+        <span class="kn">fastcgi_param</span> <span class="s">SCRIPT_FILENAME</span> <span class="nv">$document_root$fastcgi_script_name</span><span class="p">;</span>
+        <span class="kn">fastcgi_param</span> <span class="s">PATH_INFO</span> <span class="nv">$fastcgi_path_info</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>This is pretty much the same as my original configuration file with this one line changed: <code class="highlighter-rouge">fastcgi_pass $ENV{"NGINX_HOST"}:9000;</code>. Now when I wanted to start an NGinx container with a PHP container named <code class="highlighter-rouge">php-fpm-api</code>, I could build a new image and run it with an environmental variable:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker build <span class="nt">-t</span> shiphp/nginx-env:test <span class="nb">.</span>
+docker run <span class="nt">-it</span> <span class="nt">--rm</span> <span class="nt">-e</span> <span class="nv">NGINX_HOST</span><span class="o">=</span>php-fpm-api shiphp/nginx-env:test
+</code></pre></div></div>
+
+<p>It worked! But, two things bothered me about this method:</p>
+
+<ol>
+  <li>The base NGinx image being used is over two years old. This could pose security and performance risks.</li>
+  <li>Having an empty <code class="highlighter-rouge">/app</code> directory seems like an unnecessary requirement plus my files will be stored in a different directory.</li>
+</ol>
+
+<h2 id="the-final-solution">The final solution</h2>
+
+<p>I figured Martin’s image would be a good place to start for a custom solution, so I <a href="https://github.com/shiphp/nginx-env">forked the project</a> and built a <a href="https://hub.docker.com/r/shiphp/nginx-env/">new NGinx base image that fixes the two issues</a>. Now, if you want to run a dynamically-named backend with an NGinx container, you can simply do this:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Pull down the latest from Docker Hub</span>
+docker pull shiphp/nginx-env:latest
+
+<span class="c"># Run a PHP container named "php-fpm-api"</span>
+docker run <span class="nt">--name</span> php-fpm-api <span class="nt">-v</span> <span class="si">$(</span><span class="nb">pwd</span><span class="si">)</span>:/var/www php:fpm
+
+<span class="c"># Start this NGinx container linked to the PHP-FPM container</span>
+docker run <span class="nt">--link</span> php-fpm-api <span class="nt">-e</span> <span class="nv">NGINX_HOST</span><span class="o">=</span>php-fpm-api shiphp/nginx-env
+</code></pre></div></div>
+
+<p>If you want to customize the image by adding your own files or NGinx configuration files, then just extend it with a Dockerfile:</p>
+
+<div class="language-Dockerfile highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">FROM</span><span class="s"> shiphp/nginx-env</span>
+
+<span class="k">ONBUILD</span><span class="w"> </span><span class="k">ADD</span><span class="s"> &lt;PATH_TO_YOUR_CONFIGS&gt; /etc/nginx/conf.d/</span>
+
+...
+</code></pre></div></div>
+
+<p>Now all my PHP-FPM containers use their own instance of a single Docker image, making my life much easier when it comes time to upgrade NGinx, change permissions, or tweak something.</p>
+
+<p><a href="https://github.com/shiphp/nginx-env">All the code is available on Github</a>, so if you see any problems or want to suggest improvements, feel free to create an issue. If you have questions with this or anything else Docker-related <a href="https://twitter.com/shiphpnow">find me on Twitter</a> to continue the conversation.</p>
+:ET

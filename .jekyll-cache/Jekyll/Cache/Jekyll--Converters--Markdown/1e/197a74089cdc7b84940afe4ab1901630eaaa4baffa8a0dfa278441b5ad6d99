@@ -1,0 +1,2 @@
+I"\<p>Last year I started logging slow requests using PHP-FPM’s <a href="https://easyengine.io/tutorials/php/fpm-slow-log">slow request log</a>. This tool provides a very helpful, high level view of which requests to your website are not performing well, and it can help you find bugs, memory leaks, and optimizations for your database queries.</p>
+:ET

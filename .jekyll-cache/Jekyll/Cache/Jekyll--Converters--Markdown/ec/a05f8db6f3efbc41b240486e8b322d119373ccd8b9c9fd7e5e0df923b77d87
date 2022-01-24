@@ -1,0 +1,95 @@
+I"�<p><img src="https://i.imgur.com/2CM11iM.jpg" alt="" /></p>
+
+<p>In programming, we use loops to iterate over data. This can be useful for
+transforming individual elements in an array, validating input data, sorting,
+and many other things. PHP offers several methods for looping over data arrays.</p>
+
+<h4 id="for-loops">“for” Loops</h4>
+
+<p>The <code class="highlighter-rouge">for</code> loop offers space for up to three parameters: the initial value, the
+condition, and the increment. In practice, this means that you can do things
+like counting very easily using <code class="highlighter-rouge">for</code> loops. The code:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$i = 0;
+
+for($i; $i &lt; 4; $i++) {
+   echo $i . PHP_EOL;
+}
+</code></pre></div></div>
+
+<p>Will output this when <a href="https://www.shiphp.com/blog/2017/php-command-line-script">run in the command
+line</a>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>0
+1
+2
+3
+</code></pre></div></div>
+
+<p>What’s happening is that before PHP executes the block of code within the
+<code class="highlighter-rouge">for(...) { }</code> brackets, it’s checking if the conditional is true, then
+executing the code, then applying the iterative function (<code class="highlighter-rouge">$i++</code> in this case).
+That way, the next time PHP executes the block, it’s checking if <code class="highlighter-rouge">$i &lt; 4</code> and it
+won’t run indefinitely.</p>
+
+<p>Be careful though. You can easily write an infinite loop by omitting that last
+parameter, and it might cause your computer to run out of memory and crash.</p>
+
+<h4 id="foreach-loops">“foreach” Loops</h4>
+
+<p>If you want to <a href="https://www.shiphp.com/blog/2017/php-arrays">iterate over an
+array</a> (ie:
+take each element in the array and do an operation on it), then a <code class="highlighter-rouge">foreach</code> loop
+might be your best bet.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$array = ['a', 'b', 'c', 'd'];
+
+foreach($array as $key =&gt; $value) {
+  echo $value . PHP_EOL;
+}
+</code></pre></div></div>
+
+<p>The code above will output <code class="highlighter-rouge">a b c d</code> (with each character on a new line) when
+run in a command line terminal.</p>
+
+<h4 id="while-loops">“while” Loops</h4>
+
+<p>The <code class="highlighter-rouge">while</code> loop is similar to PHP’s <code class="highlighter-rouge">for</code> loop, but instead of taking three
+arguments, it just takes one: a condition.</p>
+
+<p>The <code class="highlighter-rouge">while</code> loop will test that condition and as long as it is true, it will
+execute code within the loop. For example, this code:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$j = 0;
+
+while($j &lt; 4) {
+  echo $j . PHP_EOL;
+  $j++;
+}
+</code></pre></div></div>
+
+<p>Will output the same thing as the <code class="highlighter-rouge">for</code> loop example above (<code class="highlighter-rouge">0 1 2 3</code>), but it
+allows you to put the iteration function anywhere within (or even outside) this
+block of code.</p>
+
+<h4 id="dowhile-loops">“do…while” Loops</h4>
+
+<p>Finally, <code class="highlighter-rouge">do...while</code> loops are just like <code class="highlighter-rouge">while</code> loops with the conditional
+check moved to the end of the block. This can be useful if you always want to
+execute a block once, but you’re not certain you’ll want it to run again.</p>
+
+<p>A simple example would be the following code:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$j = 0;
+
+do {
+  echo $j . PHP_EOL;
+  $j++;
+} while ($j &lt; 4);
+</code></pre></div></div>
+
+<p>Which will output the same thing as our <code class="highlighter-rouge">for</code> and <code class="highlighter-rouge">while</code> examples above (<code class="highlighter-rouge">0 1 2
+3</code>).</p>
+
+<p><img src="https://i.imgur.com/lXtB3Qu.png" alt="" /></p>
+:ET
