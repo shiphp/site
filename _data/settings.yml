@@ -1,5 +1,5 @@
 title:  Shiphp
-tagline:  The PHP Developer's Guide to Docker
+tagline:  The PHP Developer's Guide
 author:
   name: 'Karl Hughes'
   twitter:  karllhughes
@@ -15,7 +15,6 @@ menu:
 - {name: 'Home', url: ''}
 - {name: 'About', url: 'about'}
 - {name: 'Books', url: 'books'}
-- {name: 'Contact', url: 'contact'}
 
 social:
 - {icon: 'twitter', link: 'https://twitter.com/shiphpnow'}

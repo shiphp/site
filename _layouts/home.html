@@ -3,12 +3,6 @@ layout: default
 title: Home
 ---
 
-<div class="home-signup">
-{% include ebook-form-1.html %}
-</div>
-
-<h1 id="blog">Latest Blog Posts</h1>
-
 {% for post in paginator.posts %}
 <div class="posts">
   <h2>
@@ -26,16 +20,15 @@ title: Home
 
 <!-- Pagination links -->
 <div class="pagination">
-  {% if paginator.next_page %}
-    <a class="pagination-button pagination-active" href="{{ site.url }}{{ paginator.next_page_path }}" class="next">Older</a>
-  {% else %}
-    <span class="pagination-button">Older</span>
-  {% endif %}
-
   {% if paginator.previous_page %}
     <a class="pagination-button pagination-active" href="{{ site.url }}{{ paginator.previous_page_path }}">Newer</a>
     {% else %}
       <span class="pagination-button">Newer</span>
   {% endif %}
 
+  {% if paginator.next_page %}
+    <a class="pagination-button pagination-active" href="{{ site.url }}{{ paginator.next_page_path }}" class="next">Older</a>
+  {% else %}
+    <span class="pagination-button">Older</span>
+  {% endif %}
 </div>
